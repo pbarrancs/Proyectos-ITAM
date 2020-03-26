@@ -1,0 +1,151 @@
+cve_item2,Concepto1,publicacion2,cve_periodo2,Textbox4,Flujo_Mes1,item_Importe2
+,    Ingresos por intereses,ABC Capital,201806,Año en Curso,68.42,405.16
+,    Ingresos por intereses,ABC Capital,201805,Año en Curso,71.24,336.74
+,    Ingresos por intereses,ABC Capital,201804,Año en Curso,66.9,265.5
+,        Intereses de disponibilidades,ABC Capital,201806,Año en Curso,0.81,4.41
+,        Intereses de disponibilidades,ABC Capital,201805,Año en Curso,0.75,3.6
+,        Intereses de disponibilidades,ABC Capital,201804,Año en Curso,0.71,2.84
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,ABC Capital,201806,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,ABC Capital,201805,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,ABC Capital,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,ABC Capital,201806,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,ABC Capital,201805,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,ABC Capital,201804,Año en Curso,0,0
+,            Por Títulos para Negociar,ABC Capital,201806,Año en Curso,0,0
+,            Por Títulos para Negociar,ABC Capital,201805,Año en Curso,0,0
+,            Por Títulos para Negociar,ABC Capital,201804,Año en Curso,0,0
+,            Por Títulos Disponibles para la Venta,ABC Capital,201806,Año en Curso,0,0
+,            Por Títulos Disponibles para la Venta,ABC Capital,201805,Año en Curso,0,0
+,            Por Títulos Disponibles para la Venta,ABC Capital,201804,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,ABC Capital,201806,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,ABC Capital,201805,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,ABC Capital,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor en operaciones de reporto,ABC Capital,201806,Año en Curso,0.65,4.98
+,        Intereses y rendimientos a favor en operaciones de reporto,ABC Capital,201805,Año en Curso,0.7,4.33
+,        Intereses y rendimientos a favor en operaciones de reporto,ABC Capital,201804,Año en Curso,0.88,3.64
+,        Ingresos provenientes de operaciones de cobertura,ABC Capital,201806,Año en Curso,0,0
+,        Ingresos provenientes de operaciones de cobertura,ABC Capital,201805,Año en Curso,0,0
+,        Ingresos provenientes de operaciones de cobertura,ABC Capital,201804,Año en Curso,0,0
+,        Intereses de Cartera de Crédito Vigente,ABC Capital,201806,Año en Curso,61.73,355.26
+,        Intereses de Cartera de Crédito Vigente,ABC Capital,201805,Año en Curso,62.26,293.54
+,        Intereses de Cartera de Crédito Vigente,ABC Capital,201804,Año en Curso,58.48,231.28
+,            Créditos Comerciales,ABC Capital,201806,Año en Curso,61.57,354.17
+,            Créditos Comerciales,ABC Capital,201805,Año en Curso,62.09,292.6
+,            Créditos Comerciales,ABC Capital,201804,Año en Curso,58.29,230.51
+,                Actividad empresarial o comercial,ABC Capital,201806,Año en Curso,46.56,275.53
+,                Actividad empresarial o comercial,ABC Capital,201805,Año en Curso,47.86,228.97
+,                Actividad empresarial o comercial,ABC Capital,201804,Año en Curso,45.94,181.11
+,    Ingresos por intereses,Accendo Banco,201806,Año en Curso,33.68,155.81
+,    Ingresos por intereses,Accendo Banco,201805,Año en Curso,27.09,122.13
+,    Ingresos por intereses,Accendo Banco,201804,Año en Curso,24.94,95.04
+,        Intereses de disponibilidades,Accendo Banco,201806,Año en Curso,2.24,8.06
+,        Intereses de disponibilidades,Accendo Banco,201805,Año en Curso,1.27,5.82
+,        Intereses de disponibilidades,Accendo Banco,201804,Año en Curso,1.19,4.55
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Accendo Banco,201806,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Accendo Banco,201805,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Accendo Banco,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Accendo Banco,201806,Año en Curso,5.45,22.19
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Accendo Banco,201805,Año en Curso,3.71,16.74
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Accendo Banco,201804,Año en Curso,3.72,13.03
+,            Por Títulos para Negociar,Accendo Banco,201806,Año en Curso,2.29,19.03
+,            Por Títulos para Negociar,Accendo Banco,201805,Año en Curso,3.71,16.74
+,            Por Títulos para Negociar,Accendo Banco,201804,Año en Curso,3.72,13.03
+,            Por Títulos Disponibles para la Venta,Accendo Banco,201806,Año en Curso,3.16,3.16
+,            Por Títulos Disponibles para la Venta,Accendo Banco,201805,Año en Curso,0,0
+,            Por Títulos Disponibles para la Venta,Accendo Banco,201804,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Accendo Banco,201806,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Accendo Banco,201805,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Accendo Banco,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor en operaciones de reporto,Accendo Banco,201806,Año en Curso,1.44,7.04
+,        Intereses y rendimientos a favor en operaciones de reporto,Accendo Banco,201805,Año en Curso,1.17,5.6
+,        Intereses y rendimientos a favor en operaciones de reporto,Accendo Banco,201804,Año en Curso,1.51,4.43
+,        Ingresos provenientes de operaciones de cobertura,Accendo Banco,201806,Año en Curso,0,0
+,        Ingresos provenientes de operaciones de cobertura,Accendo Banco,201805,Año en Curso,0,0
+,        Ingresos provenientes de operaciones de cobertura,Accendo Banco,201804,Año en Curso,0,0
+,        Intereses de Cartera de Crédito Vigente,Accendo Banco,201806,Año en Curso,22.51,112.18
+,        Intereses de Cartera de Crédito Vigente,Accendo Banco,201805,Año en Curso,19.76,89.67
+,        Intereses de Cartera de Crédito Vigente,Accendo Banco,201804,Año en Curso,17.38,69.92
+,            Créditos Comerciales,Accendo Banco,201806,Año en Curso,22.51,112.18
+,            Créditos Comerciales,Accendo Banco,201805,Año en Curso,19.76,89.67
+,            Créditos Comerciales,Accendo Banco,201804,Año en Curso,17.38,69.92
+,                Actividad empresarial o comercial,Accendo Banco,201806,Año en Curso,22.07,109.51
+,                Actividad empresarial o comercial,Accendo Banco,201805,Año en Curso,19.3,87.44
+,                Actividad empresarial o comercial,Accendo Banco,201804,Año en Curso,16.93,68.14
+,    Ingresos por intereses,Actinver,201806,Año en Curso,206.42,"1,218.13"
+,    Ingresos por intereses,Actinver,201805,Año en Curso,210.38,"1,011.71"
+,    Ingresos por intereses,Actinver,201804,Año en Curso,203.13,801.33
+,        Intereses de disponibilidades,Actinver,201806,Año en Curso,3.49,17.65
+,        Intereses de disponibilidades,Actinver,201805,Año en Curso,4.52,14.16
+,        Intereses de disponibilidades,Actinver,201804,Año en Curso,5.57,9.63
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Actinver,201806,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Actinver,201805,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Actinver,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Actinver,201806,Año en Curso,65.13,398.32
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Actinver,201805,Año en Curso,67.53,333.19
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Actinver,201804,Año en Curso,66.59,265.66
+,            Por Títulos para Negociar,Actinver,201806,Año en Curso,3.06,9.88
+,            Por Títulos para Negociar,Actinver,201805,Año en Curso,2.13,6.81
+,            Por Títulos para Negociar,Actinver,201804,Año en Curso,1.74,4.68
+,            Por Títulos Disponibles para la Venta,Actinver,201806,Año en Curso,62.07,388.45
+,            Por Títulos Disponibles para la Venta,Actinver,201805,Año en Curso,65.4,326.38
+,            Por Títulos Disponibles para la Venta,Actinver,201804,Año en Curso,64.85,260.98
+,            Por Títulos Conservados a Vencimiento,Actinver,201806,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Actinver,201805,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Actinver,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor en operaciones de reporto,Actinver,201806,Año en Curso,0.43,10.42
+,        Intereses y rendimientos a favor en operaciones de reporto,Actinver,201805,Año en Curso,2.24,9.99
+,        Intereses y rendimientos a favor en operaciones de reporto,Actinver,201804,Año en Curso,2.96,7.75
+,        Ingresos provenientes de operaciones de cobertura,Actinver,201806,Año en Curso,0,0
+,        Ingresos provenientes de operaciones de cobertura,Actinver,201805,Año en Curso,0,0
+,        Ingresos provenientes de operaciones de cobertura,Actinver,201804,Año en Curso,0,0
+,        Intereses de Cartera de Crédito Vigente,Actinver,201806,Año en Curso,132.55,763.71
+,        Intereses de Cartera de Crédito Vigente,Actinver,201805,Año en Curso,131.12,631.17
+,        Intereses de Cartera de Crédito Vigente,Actinver,201804,Año en Curso,123.9,500.05
+,            Créditos Comerciales,Actinver,201806,Año en Curso,104.97,605.19
+,            Créditos Comerciales,Actinver,201805,Año en Curso,103.62,500.23
+,            Créditos Comerciales,Actinver,201804,Año en Curso,97.7,396.6
+,                Actividad empresarial o comercial,Actinver,201806,Año en Curso,99.11,562.64
+,                Actividad empresarial o comercial,Actinver,201805,Año en Curso,96.47,463.53
+,                Actividad empresarial o comercial,Actinver,201804,Año en Curso,90.76,367.06
+,    Ingresos por intereses,Afirme,201806,Año en Curso,"1,032.99","6,162.27"
+,    Ingresos por intereses,Afirme,201805,Año en Curso,"1,040.06","5,129.28"
+,    Ingresos por intereses,Afirme,201804,Año en Curso,"1,068.11","4,089.23"
+,        Intereses de disponibilidades,Afirme,201806,Año en Curso,29.35,108.25
+,        Intereses de disponibilidades,Afirme,201805,Año en Curso,25.43,78.9
+,        Intereses de disponibilidades,Afirme,201804,Año en Curso,16.39,53.47
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Afirme,201806,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Afirme,201805,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de cuentas de margen,Afirme,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Afirme,201806,Año en Curso,588.13,"3,665.53"
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Afirme,201805,Año en Curso,610.55,"3,077.40"
+,        Intereses y rendimientos a favor provenientes de inversiones en valores,Afirme,201804,Año en Curso,660.14,"2,466.85"
+,            Por Títulos para Negociar,Afirme,201806,Año en Curso,588.13,"3,665.53"
+,            Por Títulos para Negociar,Afirme,201805,Año en Curso,610.55,"3,077.40"
+,            Por Títulos para Negociar,Afirme,201804,Año en Curso,660.14,"2,466.85"
+,            Por Títulos Disponibles para la Venta,Afirme,201806,Año en Curso,0,0
+,            Por Títulos Disponibles para la Venta,Afirme,201805,Año en Curso,0,0
+,            Por Títulos Disponibles para la Venta,Afirme,201804,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Afirme,201806,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Afirme,201805,Año en Curso,0,0
+,            Por Títulos Conservados a Vencimiento,Afirme,201804,Año en Curso,0,0
+,        Intereses y rendimientos a favor en operaciones de reporto,Afirme,201806,Año en Curso,39.23,153.1
+,        Intereses y rendimientos a favor en operaciones de reporto,Afirme,201805,Año en Curso,23.49,113.87
+,        Intereses y rendimientos a favor en operaciones de reporto,Afirme,201804,Año en Curso,26.93,90.38
+,        Ingresos provenientes de operaciones de cobertura,Afirme,201806,Año en Curso,0.82,60.62
+,        Ingresos provenientes de operaciones de cobertura,Afirme,201805,Año en Curso,0.9,59.8
+,        Ingresos provenientes de operaciones de cobertura,Afirme,201804,Año en Curso,2.51,58.9
+,        Intereses de Cartera de Crédito Vigente,Afirme,201806,Año en Curso,362.09,"2,109.78"
+,        Intereses de Cartera de Crédito Vigente,Afirme,201805,Año en Curso,369.06,"1,747.69"
+,        Intereses de Cartera de Crédito Vigente,Afirme,201804,Año en Curso,351.23,"1,378.63"
+,            Créditos Comerciales,Afirme,201806,Año en Curso,208.32,"1,200.59"
+,            Créditos Comerciales,Afirme,201805,Año en Curso,211.16,992.27
+,            Créditos Comerciales,Afirme,201804,Año en Curso,199.63,781.11
+,                Actividad empresarial o comercial,Afirme,201806,Año en Curso,179.6,974.69
+,                Actividad empresarial o comercial,Afirme,201805,Año en Curso,172.24,795.09
+,                Actividad empresarial o comercial,Afirme,201804,Año en Curso,161.4,622.85
+,    Ingresos por intereses,American Express,201806,Año en Curso,296.63,"1,673.78"
+,    Ingresos por intereses,American Express,201805,Año en Curso,279.36,"1,377.14"
+,    Ingresos por intereses,American Express,201804,Año en Curso,298.55,"1,097.78"
+,        Intereses de disponibilidades,American Express,201806,Año en Curso,10.92,66.56
+,        Intereses de disponibilidades,American Express,201805,Año en Curso,11.43,55.65
+,        Intereses de disponibilidades,American Express,201804,Año en Curso,11.03,44.21

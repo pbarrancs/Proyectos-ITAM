@@ -1,0 +1,554 @@
+---
+title: "Proyecto"
+author: "Pablo"
+date: "22/11/2019"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(lattice)
+library(cowplot)
+library(readr)
+library(readxl)
+library(lmtest)
+library(plotly)
+library(lmtest)
+library(vars)
+library(normtest)
+library(tseries)
+dataComplete <- read_xlsx("Completa.xlsx")
+```
+
+```{r, echo = FALSE}
+#Creamos DataFrames para los diferentes paises.
+dataCR <- dataComplete[dataComplete$Pais == "Costa Rica",]
+dataMX <- dataComplete[dataComplete$Pais == "Mexico",]
+dataBR <- dataComplete[dataComplete$Pais == "Brasil",]
+dataRS <- dataComplete[dataComplete$Pais == "Rusia",]
+dataES <- dataComplete[dataComplete$Pais == "España",]
+dataUS <- dataComplete[dataComplete$Pais == "USA",]
+dataAT <- dataComplete[dataComplete$Pais != "Rusia",]
+```
+
+
+Para ver el comportamiento de nuestros datos. Y hacer una seleccion de variables con respecto a nuestra muestra, realizamos las siguientes graficas.
+```{r}
+#Regresiones Lineales Simples
+
+#Toda la muestra
+TO1 <- lm(data = dataComplete, formula = dataComplete$`% Suicidios Total` ~ dataComplete$`Pib per capita`)
+TO2 <-lm(data = dataComplete, formula = dataComplete$`% Suicidios Total` ~ dataComplete$Temperatura)
+TO3 <- lm(data = dataComplete, formula = dataComplete$`% Suicidios Total`~ dataComplete$Religion)
+
+regTO1 <- ggplot(data = dataComplete, aes(x = `Pib per capita` , y =`% Suicidios Total`,color = Pais)) + geom_point(alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Datos con respecto al PIB") + theme_bw()
+
+regTO2 <- ggplot(data = dataComplete, aes(x = Temperatura , y =`% Suicidios Total`,color = Pais)) + geom_point(alpha = 0.4, size = 3.5)  + ylab("%Suicidios Total")+xlab("Temperatura")+ ggtitle("Datos con respecto a la Temperatura") + theme_bw()
+
+regTO3 <- ggplot(data = dataComplete, aes(x = Religion , y =`% Suicidios Total`,color = Pais)) + geom_point(alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Datos con respecto a la religion") + theme_bw()
+
+#plot_grid(regTO1,regTO2,regTO3)
+regTO1
+regTO2
+regTO3
+#plot_grid(regTO1,regTO2,regTO3)
+```
+Podemos ver que el comportamiento de Rusia en las graficas, no es solo atipico, sino que ademas tiene un comportamiento distinto a los otros paises con respecto a la variable del PIB. Por lo mismo decidimos quitar a Rusia de la muestra y realizar una regresion lineal simple, de los paises de nuestra muestra excepto Rusia, es decir. Costa Rica, España, Mexico y Estados Unidos. Los resultados se muestran a continuacion.
+
+```{r}
+#Regresiones Lineales Simples
+
+#Toda la muestra (Sin Rusia)
+AT1 <- lm(data = dataComplete, formula = dataAT$`% Suicidios Total` ~ dataAT$`Pib per capita`)
+AT2 <-lm(data = dataComplete, formula = dataAT$`% Suicidios Total` ~ dataAT$Temperatura)
+AT3 <- lm(data = dataComplete, formula = dataAT$`% Suicidios Total`~ dataAT$Religion)
+
+
+plotAT1 <- ggplot(data = dataAT, aes(x = `Pib per capita` , y =`% Suicidios Total`,color = Pais)) + geom_point(alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("%Suicidios vs PIB") + theme_bw()
+
+plotAT2 <- ggplot(data = dataAT, aes(x = Temperatura , y =`% Suicidios Total`,color = Pais)) + geom_point(alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("Temperatura")+ ggtitle("%Suicidios vs Temperatur") + theme_bw()
+
+plotAT3 <- ggplot(data = dataAT, aes(x = Religion , y =`% Suicidios Total`,color = Pais)) + geom_point(alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("Religion")+ ggtitle("%Suicidios vs Religion") + theme_bw()
+
+regAT1 <- ggplot(data = dataAT, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataAT$`Pib per capita`), y = mean(dataAT$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal (PIB)") + theme_bw()
+
+regAT2 <- ggplot(data = dataAT, aes(x = Temperatura , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataAT$Temperatura), y = mean(dataAT$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal  (Temp)") + theme_bw()
+
+regAT3 <- ggplot(data = dataAT, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataAT$Religion), y = mean(dataAT$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal  (Relg)") + theme_bw()
+
+#plot_grid(regAT1,regAT2,regAT3)
+
+plotAT1
+plotAT2
+plotAT3
+
+#plot_grid(plotAT1,plotAT2,plotAT3)
+ATP <- lm(data = dataAT, formula = dataAT$`% Suicidios Total` ~ dataAT$`Pib per capita` + dataAT$Temperatura)
+
+```
+
+Al ver que en porcentaje de suicidios con respecto el PIB existe una tendencia positiva, decidimos ajustarle un modelo de regresion lineal simple, para probar si podriamos explicar esta relacion de manera lineal. Los relsultados son los siguientes.
+```{r}
+#LLamamos la regresion
+regAT1
+regAT2
+regAT3
+```
+
+Verficamos los supuestros de esta regresion lineal simple.
+Para verificar el supuesto de autocorrelacion,  graficamos los residuos contra los residuos aplicandole el operador diferencia como tambien los residuos contra el tiempo. Y obtenemos lo siguiente.
+```{r}
+#Verificamos los supuestos
+######                                     Autocorrelacion
+
+# Residuos contra Residuos
+residuosAT <- residuals(ATP)
+#write.csv(residuosAT, file="ResiduosAT.csv")
+data.ResAT <- read_csv("ResiduosAT.csv")
+resVsresAT <- ggplot(data = data.ResAT, aes(x = data.ResAT$et, y = data.ResAT$`et-1`)) + geom_point() + ylab("et")+xlab("et-1")+ ggtitle("Residuos vs Residuos") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVsresAT
+
+#Residuos contra tiempo(observacion)
+tiempo = as.vector(dataAT$`Año`)
+resVStiempoAT <- ggplot(data = NULL, aes(x = tiempo, y = residuosAT)) + geom_point() + ylab("et")+xlab("t")+ ggtitle("Residuos vs Tiempo") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVStiempoAT
+
+
+##Durbin Watson Test
+dwtest(ATP, order.by = NULL, alternative = c("greater", "two.sided", "less"),
+       iterations = 15, exact = NULL, tol = 1e-10, data = dataAT)
+#1.635 1.679 = du,dl. k = 1, n = 90.
+
+```
+Podemos observar que en la [Figura 1.] no existe algun patron notorio. Por otro lado en la [Figura 1.] parece si extstir una tendencia positiva por lo que realizamos la prueba de Durbin - Watson.
+Para 90 observaciones obtenemos un estadistico de d = 0.3208 < dL = 1.635 por lo que podemos ver que existe una autocorrelacion positiva.
+
+```{r}
+###                                       Heterstascicidad
+
+residuos.eAT <- rstandard(ATP)
+#Valores estimados por el modelo
+v.eAT<- fitted(ATP)
+
+
+
+resVSestX1AT <- ggplot(data = NULL, aes(x = v.eAT, y = residuos.eAT)) + geom_point() +  ylab("ei/s")+xlab("Valores Estimados(Y)")+ ggtitle("Residuos vs Valores Estimados") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVSestX1AT
+
+
+#White Test
+A = dataAT$`Pib per capita`
+D = dataAT$Temperatura
+bptest(ATP)
+bptest(ATP, ~ A*D + I(A^2) + I(D^2), data = dataAT)
+
+#Xi cuadrada(5) grado de libertad 
+#comparamos(BP) contra 11.07
+
+
+
+
+###                                     Media del error distinta de cero
+#Justificacion al usar MCO y existe B0 ordenadad al origen
+
+suma = 0
+for(i in 1:18)
+{
+  suma = suma + residuosAT[i]
+}
+suma
+
+###                                       Linealidad
+
+#Linealidad Grafica (y vs PIB) y (y vs Temp)
+
+
+###                           No normalidad de los errores
+
+HistAT <- ggplot(data = NULL, aes(x = residuosAT)) + geom_histogram(aes(y = ..density.., fill = ..count..))+stat_function(fun = dnorm, colour = "firebrick", args = list(mean = mean(residuosAT),sd = sd(residuosAT))) +ggtitle("Histograma + curva normal teórica") +theme_bw()
+HistAT
+
+jarque.bera.test(x = residuosAT)
+
+
+```
+
+```{r, echo = FALSE}
+#Regresiones lineales Simples
+
+#Costa Rica
+CR1 <- lm(data = dataCR, formula = dataCR$`% Suicidios Total` ~ dataCR$`Pib per capita`)
+CR2 <-lm(data = dataCR, formula = dataCR$`# Suicidios Total` ~ dataCR$Temperatura)
+CR3 <- lm(data = dataCR, formula = dataCR$`% Suicidios Total`~ dataCR$Religion)
+
+regCR1 <- ggplot(data = dataCR, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataCR$`Pib per capita`), y = mean(dataCR$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal CR (PIB)") + theme_bw()
+
+regCR2 <- ggplot(data = dataCR, aes(x = Temperatura , y =`# Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataCR$Temperatura), y = mean(dataCR$`# Suicidios Total`)),colour = "green") + ylab("#Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal CR (Temp)") + theme_bw()
+
+regCR3 <- ggplot(data = dataCR, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataCR$Religion), y = mean(dataCR$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal CR (Relg)") + theme_bw()
+
+plot_grid(regCR1,regCR2,regCR3)
+
+```
+
+
+
+
+Para analizar el caso de Mexico. Graficamos los datos para realizar una seleccion de variable.
+```{r, echo = FALSE}
+#Regresiones lineales Simples
+
+#México
+MX1 <- lm(data = dataMX, formula = dataMX$`% Suicidios Total` ~ dataMX$`Pib per capita`)
+MX2 <-lm(data = dataMX, formula = dataMX$`% Suicidios Total` ~ dataMX$Temperatura)
+MX3 <- lm(data = dataMX, formula = dataMX$`% Suicidios Total`~ dataMX$Religion)
+
+regMX1 <- ggplot(data = dataMX, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataMX$`Pib per capita`), y = mean(dataMX$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal MX (PIB)") + theme_bw()
+
+regMX2 <- ggplot(data = dataMX, aes(x = Temperatura , y =`# Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataMX$Temperatura), y = mean(dataMX$`# Suicidios Total`)),colour = "green") + ylab("#Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal MX (Temp)") + theme_bw()
+
+regMX3 <- ggplot(data = dataMX, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataMX$Religion), y = mean(dataMX$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal MX (Relg)") + theme_bw()
+
+
+plotMX1 <- ggplot(data = dataMX, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point(color = "red", alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("(PIB)") + theme_bw()
+
+plotMX2 <- ggplot(data = dataMX, aes(x = Temperatura , y =`% Suicidios Total`)) + geom_point(color = "blue", alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("Temperatura")+ ggtitle("(Temp)") +
+theme_bw()
+
+plotMX3 <-  ggplot(data = dataMX, aes(x = Religion , y =`% Suicidios Total`)) + geom_point(color = "purple", alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("(Relg)") + theme_bw()
+
+plot_grid(plotMX1,plotMX2,plotMX3)
+#plot_grid(regMX1,regMX2,regMX3)
+```
+Podemos ver que para ambos casos tanto el PIB como para la Temperatura, existe una tendencia positiva en los datos mientras que para la Relgigion la tendencia es negativa. Hacemos una regresion lineal multiple utilizando estas tres variabes
+#(Fatla poner despues porque quitamos la Relgion)
+```{r}
+
+MXP1 <- lm(data = dataMX, formula = dataMX$`% Suicidios Total` ~ dataMX$`Pib per capita` + dataMX$Temperatura + dataMX$Religion)
+
+#regMXP <- ggplot(data = dataMX, aes(x = `Pib per capita` , y =`% Suicidios Total` , z = Temperatura)) + geom_point() 
+
+MXP<- lm(data = dataMX, formula = dataMX$`% Suicidios Total` ~ dataMX$`Pib per capita` + dataMX$Temperatura)
+```
+#Presentar los datos mas relevantes de la regresion)
+Validacion de supuestos.
+Para ver que no existe autocorrelacion en los datos, graficamos los reiduos de la regresion contra los mismos residuos aplicandoles el operador diferencia. Tambien graficamos los residuos contra el tiempo. En ambas graficas no encontramos algun patron en los datos. Sin embargo realizamos la prueba de Durbin Watson para estar seguro y obruvimos lo siguiente.
+
+```{r}
+
+######                                     Autocorrelacion
+
+# Residuos contra Residuos
+residuosMX <- residuals(MXP)
+#write.csv(residuosMX, file="ResiduosMX.csv")
+data.ResMX <- read_csv("ResiduosMX.csv")
+resVsresMX <- ggplot(data = data.ResMX, aes(x = data.ResMX$et, y = data.ResMX$`et-1`)) + geom_point() + ylab("et")+xlab("et-1")+ ggtitle("Residuos vs Residuos") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVsresMX
+
+#Residuos contra tiempo(observacion)
+tiempo = as.vector(dataMX$`Año`)
+resVStiempoMX <- ggplot(data = NULL, aes(x = tiempo, y = residuosMX)) + geom_point() + ylab("et")+xlab("t")+ ggtitle("Residuos vs Tiempo") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVStiempoMX
+
+
+##Durbin Watson Test
+dwtest(MXP, order.by = NULL, alternative = c("greater", "two.sided", "less"),
+       iterations = 15, exact = NULL, tol = 1e-10, data = dataMX)
+#1.046 1.535 = du,dl.
+
+
+
+```
+El estadistico de la pruba fue d = 2.402 el cual es menor comparandolo con 4 - du 1.046, por lo que podemos afirmar que no existe autocorrelacion en nuestro modelo.
+
+
+Para validar el supuesto de heterocedasticidad graficamos los residuos estandarizados contra los valores estimados, en donde sospechamos la presencia de un patron por lo que realizamos la prueba de White. Y obtuvimos el siguiente resultado.
+```{r}
+###                                       Heterstascicidad
+
+residuos.eMX <- rstandard(MXP)
+#Valores estimados por el modelo
+v.eMX<- fitted(MXP)
+
+
+
+resVSestX1MX <- ggplot(data = NULL, aes(x = v.eMX, y = residuos.eMX)) + geom_point() +  ylab("ei/s")+xlab("Valores Estimados(Y)")+ ggtitle("Residuos vs Valores Estimados") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVSestX1MX
+
+
+#White Test
+B = dataMX$`Pib per capita`
+C = dataMX$Temperatura
+#bptest(MXP)
+bptest(MXP, ~ B*C + I(B^2) + I(C^2), data = dataMX)
+
+#Xi cuadrada(5) grado de libertad 
+#comparamos(BP) contra 11.07
+
+```
+El estadistico obtenido fue W = 4.1728, con un valor p = 0.5248, con lo cual comparamos con una Xi cuadrada con 5 grados de libertad es decir {\chi}^2$ = 11.07. Con lo cual podemos rechazar la existencia de Heterocedasticidad.
+
+Para la validacion de [la media del error = 0], se justifica debido a que se uso minimos cuadrados orginarios y que existe {\betha}_{0}, es decir una ordenada al origen.
+```{r, echo = FALSE}
+
+###                                     Media del error distinta de cero
+#Justificacion al usar MCO y existe B0 ordenadad al origen
+
+suma = 0
+for(i in 1:18)
+{
+  suma = suma + residuosMX[i]
+}
+suma
+```
+
+Para corroborar que hay Linealidad en las variables podemos observar las siguientes graficas.
+```{r}
+
+###                                       Linealidad
+
+#Linealidad Grafica (y vs PIB) y (y vs Temp)
+#plot_grid(plotMX1,plotMX2)
+plotMX4 <- ggplot(data = NULL, aes(x = dataMX$`Pib per capita`, y =residuosMX)) + geom_point(color = "red", alpha = 0.4, size = 3.5) + ylab("ei´s")+xlab("PIB p/c")+ ggtitle("(PIB)") + theme_bw()
+
+plotMX5 <- ggplot(data = NULL, aes(x = dataMX$Temperatura , y =residuosMX)) + geom_point(color = "blue", alpha = 0.4, size = 3.5) + ylab("ei´s")+xlab("Temperatura")+ ggtitle("(Temp)") + theme_bw()
+ 
+plotMX6 <-  ggplot(data = NULL, aes(x = dataMX$Religion , y =residuosMX)) + geom_point(color = "purple",alpha = 0.4, size = 3.5) + ylab("ei´s")+xlab("Temperatura")+ ggtitle("(Relig)") + theme_bw()
+
+plot_grid(plotMX4,plotMX5)
+
+```
+Para verificar que los errrores tienen una distribucion normal, graficamos el siguiente histogrma.
+```{r}
+###                           No normalidad de los errores
+
+HistMX <- ggplot(data = NULL, aes(x = residuosMX)) + geom_histogram(aes(y = ..density.., fill = ..count..))+stat_function(fun = dnorm, colour = "firebrick", args = list(mean = mean(residuosMX),sd = sd(residuosMX))) +ggtitle("Histograma + curva normal teórica") +theme_bw()
+
+HistMX
+
+
+jarque.bera.test(x = residuosMX)
+
+```
+Al tener sospechas con respecto a una apariencia normal. Realizamos la prueba de Jarque Bera que obtenemos como estadistico:  0.040506, p-value = 0.98.
+con esto pudimos combrar normalidad. Xi cuadrada con 2 grados de libertad que da 5.99, por lo cual podemos rechazar que no existe normalidad en los errores
+
+
+```{r, echo = FALSE}
+#Regresiones lineales Simples
+
+#Brasil
+BR1 <- lm(data = dataBR, formula = dataBR$`% Suicidios Total` ~ dataBR$`Pib per capita`)
+BR2 <-lm(data = dataBR, formula = dataBR$`# Suicidios Total` ~ dataBR$Temperatura)
+BR3 <- lm(data = dataBR, formula = dataBR$`% Suicidios Total`~ dataBR$Religion)
+
+regBR1 <- ggplot(data = dataBR, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataBR$`Pib per capita`), y = mean(dataBR$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal BR (PIB)") + theme_bw()
+
+regBR2 <- ggplot(data = dataBR, aes(x = Temperatura , y =`# Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataBR$Temperatura), y = mean(dataBR$`# Suicidios Total`)),colour = "green") + ylab("#Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal BR (Temp)") + theme_bw()
+
+regBR3 <- ggplot(data = dataBR, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataBR$Religion), y = mean(dataBR$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal BR (Relg)") + theme_bw()
+
+
+plot_grid(regBR1,regBR2,regBR3)
+
+```
+
+
+```{r, echo = FALSE}
+#Regresiones lineales Simples
+
+#Rusia
+RS1 <- lm(data = dataRS, formula = dataRS$`% Suicidios Total` ~ dataRS$`Pib per capita`)
+RS2 <-lm(data = dataRS, formula = dataRS$`% Suicidios Total` ~ dataRS$Temperatura)
+RS3 <- lm(data = dataRS, formula = dataRS$`% Suicidios Total`~ dataRS$Religion)
+
+regRS1 <- ggplot(data = dataRS, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataRS$`Pib per capita`), y = mean(dataRS$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal RS (PIB)") + theme_bw()
+
+regRS2 <- ggplot(data = dataRS, aes(x = Temperatura , y =`# Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataRS$Temperatura), y = mean(dataRS$`# Suicidios Total`)),colour = "green") + ylab("#Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal RS (Temp)") + theme_bw()
+
+regRS3 <- ggplot(data = dataRS, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataRS$Religion), y = mean(dataRS$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal RS (Relg)") + theme_bw()
+
+
+plotRS1 <- ggplot(data = dataRS, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point(color = "red", alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("(PIB)") + theme_bw()
+
+plotRS2 <- ggplot(data = dataRS, aes(x = Temperatura , y =`% Suicidios Total`)) + geom_point(color = "blue", alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("Temperatura")+ ggtitle("(Temp)") +
+theme_bw()
+
+plotRS3 <-  ggplot(data = dataRS, aes(x = Religion , y =`% Suicidios Total`)) + geom_point(color = "purple", alpha = 0.4, size = 3.5) + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("(Relg)") + theme_bw()
+
+plot_grid(plotRS1,plotRS2,plotRS3)
+
+#plot_grid(regRS1,regRS2,regRS3)
+```
+
+Realizamos la regresion lineal multiple, pero vemos con un contraste de hipotesis como eliminar la variable religion
+
+
+```{r}
+RSP <- lm(data = dataRS, formula = dataRS$`% Suicidios Total` ~ dataRS$`Pib per capita` + dataRS$Temperatura)
+
+RSP2 <- lm(data = dataRS, formula = dataRS$`% Suicidios Total` ~ dataRS$`Pib per capita` +
+             dataRS$Temperatura+ dataRS$Religion)
+
+```
+
+Validacion de supuestos.
+Para ver que no existe autocorrelacion en los datos, graficamos los reiduos de la regresion contra los mismos residuos aplicandoles el operador diferencia. Tambien graficamos los residuos contra el tiempo. En ambas graficas no encontramos algun patron en los datos. Sin embargo realizamos la prueba de Durbin Watson para estar seguro y obruvimos lo siguiente.
+
+```{r}
+
+######                                     Autocorrelacion
+
+# Residuos contra Residuos
+residuosRS <- residuals(RSP)
+#write.csv(residuosRS, file="ResiduosRS.csv")
+data.ResRS <- read_csv("ResiduosRS.csv")
+resVsresRS <- ggplot(data = data.ResRS, aes(x = data.ResRS$et, y = data.ResRS$`et-1`)) + geom_point() + ylab("et")+xlab("et-1")+ ggtitle("Residuos vs Residuos") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVsresRS
+
+#Residuos contra tiempo(observacion)
+tiempo = as.vector(dataRS$`Año`)
+resVStiempoRS <- ggplot(data = NULL, aes(x = tiempo, y = residuosRS)) + geom_point() + ylab("et")+xlab("t")+ ggtitle("Residuos vs Tiempo") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVStiempoRS
+
+
+##Durbin Watson Test
+dwtest(RSP, order.by = NULL, alternative = c("greater", "two.sided", "less"),
+       iterations = 15, exact = NULL, tol = 1e-10, data = dataRS)
+#1.046 1.535 = du,dl.
+
+```
+
+El estadistico de la pruba fue 1.4831 el cual es mayor comparandolo con du = 1.045, por lo que podemos afirmar que no existe autocorrelacion en nuestro modelo.
+
+
+Para validar el supuesto de heterocedasticidad graficamos los residuos estandarizados contra los valores estimados, en donde sospechamos la presencia de un patron por lo que realizamos la prueba de White. Y obtuvimos el siguiente resultado.
+```{r}
+
+###                                       Heterstascicidad
+
+residuos.eRS <- rstandard(RSP)
+#Valores estimados por el modelo
+v.eRS<- fitted(RSP)
+
+
+
+resVSestX1RS <- ggplot(data = NULL, aes(x = v.eRS, y = residuos.eRS)) + geom_point() +  ylab("ei/s")+xlab("Valores Estimados(Y)")+ ggtitle("Residuos vs Valores Estimados") +  geom_hline(yintercept = 0,lty = 2) + theme_bw()
+
+resVSestX1RS
+
+
+#White Test
+E = dataRS$`Pib per capita`
+G = dataRS$Temperatura
+#bptest(RSP)
+bptest(RSP, ~ E*G + I(E^2) + I(G^2), data = dataRS)
+
+#Xi cuadrada(5) grado de libertad 
+#comparamos(BP) contra 11.07
+
+
+```
+
+El estadistico obtenido fue W = 2.228, con un valor p =  0.8168, con lo cual comparamos con una Xi cuadrada con 5 grados de libertad es decir {\chi}^2$ = 11.07. Con lo cual podemos rechazar la existencia de Heterocedasticidad.
+
+Para la validacion de [la media del error = 0], se justifica debido a que se uso minimos cuadrados orginarios y que existe {\betha}_{0}, es decir una ordenada al origen.
+```{r}
+
+###                                     Media del error distinta de cero
+#Justificacion al usar MCO y existe B0 ordenadad al origen
+
+suma = 0
+for(i in 1:18)
+{
+  suma = suma + residuosRS[i]
+}
+suma
+
+```
+
+Para corroborar que hay Linealidad en las variables podemos observar las siguientes graficas.
+```{r}
+###                                       Linealidad
+
+#Linealidad Grafica (y vs PIB) y (y vs Temp)
+plotRS4 <- ggplot(data = NULL, aes(x = dataRS$`Pib per capita`, y =residuosRS)) + geom_point(color = "orange", alpha = 0.4, size = 3.5) + ylab("ei´s")+xlab("PIB p/c")+ ggtitle("(PIB)") + theme_bw()
+
+plotRS5 <- ggplot(data = NULL, aes(x = dataRS$Temperatura , y =residuosRS)) + geom_point(color = "green", alpha = 0.4, size = 3.5) + ylab("ei´s")+xlab("Temperatura")+ ggtitle("(Temp)") + theme_bw()
+ 
+
+plot_grid(plotRS4,plotRS5)
+
+
+```
+
+Para verificar que los errrores tienen una distribucion normal, graficamos el siguiente histogrma.
+```{r}
+
+###                           No normalidad de los errores
+
+HistRS <- ggplot(data = NULL, aes(x = residuosRS)) + geom_histogram(aes(y = ..density.., fill = ..count..))+stat_function(fun = dnorm, colour = "firebrick", args = list(mean = mean(residuosRS),sd = sd(residuosRS))) +ggtitle("Histograma + curva normal teórica") +theme_bw()
+HistRS
+
+
+jarque.bera.test(x = residuosRS)
+
+
+```
+
+Al tener sospechas con respecto a una apariencia normal. Realizamos la prueba de Jarque Bera que obtenemos como estadistico: 0.19634, p-value = 0.9065.
+con esto pudimos combrar normalidad. Xi cuadrada con 2 grados de libertad que da 5.99, por lo cual podemos rechazar que no existe normalidad en los errores
+
+```{r, echo = FALSE}
+#Regresiones lineales Simples
+
+#España
+ES1 <- lm(data = dataES, formula = dataES$`% Suicidios Total` ~ dataES$`Pib per capita`)
+ES2 <-lm(data = dataES, formula = dataES$`# Suicidios Total` ~ dataES$Temperatura)
+ES3 <- lm(data = dataES, formula = dataES$`% Suicidios Total`~ dataES$Religion)
+
+regES1 <- ggplot(data = dataES, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataES$`Pib per capita`), y = mean(dataES$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal ES (PIB)") + theme_bw()
+
+regES2 <- ggplot(data = dataES, aes(x = Temperatura , y =`# Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataES$Temperatura), y = mean(dataES$`# Suicidios Total`)),colour = "green") + ylab("#Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal ES (Temp)") + theme_bw()
+
+regES3 <- ggplot(data = dataES, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataES$Religion), y = mean(dataES$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal ES (Relg)") + theme_bw()
+
+plot_grid(regES1,regES2,regES3)
+
+
+```
+
+
+
+
+
+```{r, echo = FALSE}
+#Regresiones lineales Simples
+
+#USA
+US1 <- lm(data = dataES, formula = dataES$`% Suicidios Total` ~ dataES$`Pib per capita`)
+US2 <-lm(data = dataES, formula = dataES$`# Suicidios Total` ~ dataES$Temperatura)
+US3 <- lm(data = dataES, formula = dataES$`% Suicidios Total`~ dataES$Religion)
+
+regUS1 <- ggplot(data = dataUS, aes(x = `Pib per capita` , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataUS$`Pib per capita`), y = mean(dataUS$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("PIB p/c")+ ggtitle("Regresion Lineal US (PIB)") + theme_bw()
+
+regUS2 <- ggplot(data = dataUS, aes(x = Temperatura , y =`# Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataUS$Temperatura), y = mean(dataUS$`# Suicidios Total`)),colour = "green") + ylab("#Suicidios Total")+xlab("Temperatura")+ ggtitle("Regresion Lineal US (Temp)") + theme_bw()
+
+regUS3 <- ggplot(data = dataUS, aes(x = Religion , y =`% Suicidios Total`)) + geom_point() + geom_smooth(method = lm) + geom_point(aes(x = mean(dataUS$Religion), y = mean(dataUS$`% Suicidios Total`)),colour = "green") + ylab("%Suicidios Total")+xlab("% Pob Religiosa")+ ggtitle("Regresion Lineal US (Relg)") + theme_bw()
+
+plot_grid(regUS1,regUS2,regUS3)
+
+```
+
+
+
+
+

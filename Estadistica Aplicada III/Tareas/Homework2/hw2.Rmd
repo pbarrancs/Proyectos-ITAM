@@ -1,0 +1,508 @@
+---
+title: "hw2"
+author: "Pablo,Román,Sofía"
+date: "12/2/2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+
+##Ejercicio 1
+
+Un outlier se define como una observación que cae más allá de las barras del boxplot, las
+barras o whiskers se definen como: $F_U + 1.5dF$ y $F_L −1.5dF$ , donde $F_L$ y $F_U$ los quartiles 1 y 3
+respectivamente y dF es el rango intercuartil. El extremo suerior es el máximo del conjunto
+de datos. Responder las siguientes preguntas:
+
+Recordemos que un valor que caiga 1.5 rangos intercuantiles abajo o arriba del quantil superior/inferior es un outlier.
+
+a)¿Es el extremo superior siempre un outlier?
+
+Por definición, el extemo superior es el dato mayor exluyendo a los outliers, es decir, no puede ser uno de ellos.
+
+b) ¿Es posible para la media o la mediana quedar afuera de los cuartiles o incluso afuera
+de los whiskers?
+
+Le mediana es la linea que divide la caja a la mitad, por lo que, nunca quedará afuera de los cuantiles, es uno como tal y menos podr??a estar fuera de los whiskers.Además, los whiskers representan una desviación estándar arriba y abajo de la media, entonces, tampoco puede estar fuera la media.
+
+c) Supongan que los datos se distribuyen $N(0, 1)$. ¿Qué porcentaje de los datos esperan
+que caigan afuera de los whiskers?
+
+Al observar la tabla z, podemos buscar el percentil 25 y el percentil 75, que son aproximadamente -0.675 y 0.675. Entonces, podemos obtener el l??mite inferior y el l??mite superior para el rango intercuantil $25 - 1.5 * (75 - 25)$ y $75 + 1.5 * (75 - 25)$, que es (-2.7,2.7).Entonces, tenemos 0.0035 de probabilidad a la izquierda (<-2.7) y 0.0035 de probabilidad a la derecha (> -2.7), entonces un total de 0.007 (0.7%) de probabilidad de estar fuera de os whiskers y ser outlier por lo tanto.
+
+d) ¿Qué porcentaje de los datos se espera que caigan fuera de los whiskers si suponemos
+que los datos son normales con media 0 y varianza $\sigma^2$ desconocida?
+
+Siguiendo el razonamiento anterior tenemos que el rango "aceptable" es $(-2.7\sigma,2.7\sigma)$. Lo cual coincide con .355 de probabilidad de caer en cada lado, por lo que, también tenemos un .7% de probabilidad de outliers.
+
+##Ejercicio 2
+2. Supongamos que tenemos 50 observaciones de una N (0,1) y otras 50 observaciones de una
+N (2, 1). ¿Cómo se verán las 100 caras de Chernoff si X y Y definen la línea de la cara y la
+oscuridad del cabello? ¿Esperan caras similares? ¿Cuántas caras lucen como observaciones
+de Y aún cuando son observaciones de X?
+
+Como no encontramos los atributos de lina de la cara y oscuridad de cabello, usaremos lo mas proximo que encontramos que fue la estructura de la cara y el estilo de cabello.
+Esperamos que las caras no difieran tanto en cuanto a su estructura facial y con respecto a su estilo de cabello. Dado que lo unico que cambia es su media.
+```{r}
+library(aplpack)
+# Primero creamos la matriz de estructura para las 100 caras de chernoff, con 15 entradas para sus atributos
+CH <- matrix (rep(1,1500),ncol = 15)
+X.2 <- rnorm(50)
+Y.2 <- rnorm(50,2,1)
+
+#x1.2 <- sample(c(X.2,Y.2))
+#y1.2 <- sample(c(X.2,Y.2))
+
+#La estructura de la cara, corresponde a la entrada 3, mientras que el estilo del cabello a la 11, es por eso que sustituimos aqui 50 observaciones de X y 50 de 
+CH[1:50,3] <- X.2
+CH[1:50,11] <- Y.2
+CH[1:50,3] <- sample(X.2)
+CH[1:50,11] <- sample(Y.2)
+
+
+faces(CH[1:50,],ncol.plot = 10, nrow.plot = 5, main= "Primeras 50 observaciones corresp a X")
+faces(CH[51:100,],ncol.plot = 10, nrow.plot = 5, main = "Ultimas 50 observaciones corresp a X")
+```
+Podemos ver una diferencia notoria entre dos fenotipos faciales. Mientras las caras correspondientes a $X$ tienen forma mas ovalada y en promedio su cabello es verde, las de $Y$ son un poco mas cuadradas y el color de pelo es amarillo.
+
+
+##Ejercicio 3
+3 Usando las seis observaciones de la variable X1 en millones de dólares:
+  a. Encuentra la proyección sobre $1'= (1, 1, 1, 1, 1, 1)$
+  b. Calcula el vector desviación $y_1 − \bar{x}_1$. Relaciona su longitud a la desviación estándar.
+  c. Grafica (a escala) el triángulo formado por $y_1$,$\bar{x}_1$  y $y_1 − \bar{x}_1$. Identifica la longitud      de cada vector en tu gráfica.
+  d. Repetir los incisos (a) a (c) para X2
+  e. Grafica (a escala) los dos vectores desviación $y_1 − $ y $y_2 − \bar{x}_21$. Calcula el valor       del ángulo entre ellos.
+  f. Calcula la varianza muestral generalizada det(S) para estos datos e interpreta.
+  g. Calcula la varianza muestral total tr(S) para estos datos e interpreta.
+
+Para resolver el inciso a), utilizaremos la siguiente formula para obtener la proyección del vector $x$ sobre $y$.
+$$proy(x,y)= \frac{x'y}{y'y}y $$.
+
+```{r,echo = FALSE}
+data3 <- read.csv("data_q3.csv")
+names(data3) <- c("Equipo","x1","x2")
+X1.3 <- as.array(data3$x1)
+X2.3 <- as.array(data3$x2)
+```
+
+```{r}
+# a)
+proy <-function(x,y)
+{
+  (t(x)%*%y)[1]/(t(y)%*%y)[1]*y 
+}
+unos <- rep(1,6)
+(proy1 <- proy(X1.3,unos))
+```
+Podemos observar que si dividimos la proyección obtenida es el vector $\bar{x}_11$.
+```{r}
+X1.3.mean <- mean(data3$x1)
+X1.3.mean
+proy1
+```
+
+Para el inciso b) consideraremos que $y1$ es la primer columna de nuestros datos. Por lo cual procedmos de la siguiente manera para calcular el vector desviación.
+```{r}
+y1.3 <- as.array(data3$x1)
+(d1.3 <- y1.3 - X1.3.mean)
+```
+Ahora para ilustrar la relacion entre su longitud y la desviacion estandar hacemos lo siguiente
+```{r}
+norm_vec <- function(x)
+{
+  sqrt(sum(x^2))
+}
+norm_vec(d1.3)
+sd(X1.3)
+```
+Los elementos de $d_i = y_{1i} - x_{1i}$ son las medidas de desviacion de la i-esima variable con respecto a su media.
+Por lo cual, podemos ver lo siguiente.
+$$L_{di}^2 = d_i'd_i = \sum_{j = 1}^n(x_{ji}-\bar{x}_i)^2$$
+De donde se deduce que la longitud al cuadrado es proporcional a la varianza. Equivalentemente, la longitud del vector es proporcional a la desviación estandar. Por eso al dividir la longitud entre $\sqrt{n-1}$ obtuvimos la varianza.
+```{r}
+norm_vec(d1.3)/sqrt(5)
+sd(X1.3)
+```
+Para hacer el inciso c) reduciremos la complejidad del problema y nos limitaremos a solo usar las primeras dos entradas del vector $X_1$.
+```{r}
+x1.3 <- X1.3[c(1,2)]
+x1.3.mean <- proy(x1.3,c(1,1))
+d1 <- x1.3 - x1.3.mean
+
+#normalizamos
+x1.3 <- x1.3/norm_vec(x1.3)
+x1.3.mean <- x1.3.mean/norm_vec(x1.3.mean)
+d1 <- d1/norm_vec(d1)
+data.3c <-rbind(x1.3,x1.3.mean,d1)
+x3 <- as.array(data.3c[,1])
+y3 <- as.array(data.3c[,2])
+plot(x3,y3)
+polygon(x3,y3, border = 'red')
+```
+
+
+Repetimos lo mismo para la segunda columna de nuestro data frame para realizar el incizo d).
+
+Proyección sobre $1' = (1,1,1,1,1,1)$
+```{r}
+X2.3
+(proy2 <- proy(X2.3,unos))
+```
+Ahora calculamos el vector de desviacion. $y_2 - \bar{x}_2$ y verificamos su relacion con la desviacion estandar.
+```{r}
+(d2.3 <- X2.3 - proy2)
+norm_vec(d2.3)/sqrt(5)
+sd(X2.3)
+```
+Por ultimo, realizamos la grafica del triangulo formado por $y_2$ $\bar{x}_2$ y $y_2 - \bar{x}_2$.
+```{r}
+x2.3 <- X2.3[c(1,2)]
+x2.3.mean <- proy(x2.3,c(1,1))
+d2 <- x2.3 - x2.3.mean
+
+#normalizamos
+x2.3 <- x2.3/norm_vec(x2.3)
+x2.3.mean <- x2.3.mean/norm_vec(x2.3.mean)
+d2 <- d2/norm_vec(d2)
+data.3d <-rbind(x2.3,x2.3.mean,d2)
+x4 <- as.array(data.3d[,1])
+y4 <- as.array(data.3d[,2])
+plot(x4,y4)
+polygon(x4,y4, border = 'green')
+```
+
+
+Para el inciso e), graficaremos los dos vectores de desviación $y_1 - \bar{x}_1$ y $y_2 - \bar{x}_2$. Dada la complejidad del problema solo graficaremos las primeras dos entradas.
+```{r}
+
+#intento 1) con vector de dos dimensions, el problema es que es el mismo d1 y d2
+D1 <- c(0,d1[1])
+D2 <- c(0,d1[2])
+plot(D1,D2)
+arrows(D1[1],D2[1],D1[2],D2[2])
+
+
+#intento 2) con solo las primeras dos entradas
+D1.3 <- d1.3[c(1,2)]
+D2.3 <- d2.3[c(1,2)]
+D1.3 <- D1.3/ norm_vec(D1.3)
+D2.3 <- D2.3/ norm_vec(D2.3)
+D<- rbind(D1.3,D2.3)
+plot(D[,1],D[,2],type="n", xlim=c(0, 1), ylim=c(0,1))
+arrows(0,0,x1 = D[c(1,1)],y1 = D[c(1,2)])
+
+```
+
+
+Para calcular el angulo entre los dos vectores utilizaremos los vectores en seis dimensiones originales y la siguiente formula.
+$$ d_i'd_k = L_{d_i}L_{d_k}cos(\theta_{ik})$$
+por lo tanto
+$$cos(\theta_{ik}) = \frac{d_i'd_k }{L_{d_i}L_{d_k}}$$
+de donde 
+$$\theta_{ik} = cos^{-1}(\frac{d_i'd_k }{L_{d_i}L_{d_k}})$$
+
+```{r}
+v <- ((t(d1.3)%*%d2.3)[1]/((norm_vec(d1.3))*(norm_vec(d2.3))))
+(theta <- acos(v))
+```
+ahora para el inciso f) calcularemos la viaranza muestral generalizada.
+Dado que se cumple que $d_i'dj = nS_{ij}$ hacemos lo siguiente. Para primero calcular $S_n$
+```{r}
+#Duda si dividir entre 6 o 6-1
+s1.3 <- (t(d1.3)%*%d1.3)[1]/(6-1)
+s2.3 <- (t(d2.3)%*%d2.3)[1]/(6-1)
+sc.3 <- (t(d1.3)%*%d2.3)[1]/(6-1)
+
+Sn.3 <- matrix(c(s1.3,sc.3,sc.3,s2.3),2,2,byrow = TRUE)
+det(Sn.3)
+# comparando con la obtenida por R
+X3 <- cbind(data3$x1,data3$x2)
+S3 <- cov(X3)
+
+(det(S3))
+```
+
+para el inciso g) calculamos la $tr(S)$
+```{r}
+
+sum(diag(Sn.3))
+```
+
+##Ejercicio 4
+4 Dibuja las elipsoides sólidas $\{{x|(x − \bar{x})'S^{-1}(x − \bar{x}) ≤ 1\}}$ para las tres matrices siguientes y determina los valores de los ejes mayores y menores.
+a)$$S = \left(\begin{array}{cc} 
+5 & 4\\
+4 & 5
+\end{array}\right)$$  
+Asumimos que la media es cero, es decir $\bar{x} = 0$. Esto hara que nuestras elipses esten centradas en el origen. Los ejesY procedemos de la siguiente forma.
+```{r}
+S1 <- matrix(c(5,4,4,5),nrow = 2, byrow = T)
+lambdas1 <- eigen(S1)$values
+(eje.mayor <- sqrt(max(lambdas1)))
+(eje.menor <- sqrt(min(lambdas1)))
+
+mu <- c(0, 0)  #vector medias
+DC <- chol(S1) # descomposición de Cholesky
+angl <- seq(0, 2*pi, length.out=200) 
+elipse.esc <- 1 * cbind(cos(angl), sin(angl)) %*% DC # elipse escalada
+elipseCentro <- sweep(elipse.esc, 2, mu, "+") # centramos en la media
+plot(elipseCentro, type="l", lwd=2, asp=1, xlab="x",ylab="y", main="S1")
+points(mu[1], mu[2], pch=4, lwd=2, col="red") 
+#Ejes en la dirección de las componentes principales:
+Sinv <- solve(S1) #inversa de la matriz de covarianzas
+DE <- eigen(Sinv) #descomposición espectral de Sinv
+s1 <- 2 #factor de escala
+s2 <- 1
+arrows(x0 = mu[1], y0 = mu[2],
+x1 = mu[1] + s2*DE$vectors[1,1], y1 = mu[2] + s2*DE$vectors[2,1], length = 0.1, col = "red")
+arrows(x0 = mu[1], y0 = mu[2],
+x1 = mu[1] + s1*DE$vectors[1,2], y1 = mu[2] + s1*DE$vectors[2,2], length = 0.1, col = "red")
+```
+
+
+De donde el eje mayor es 3 y el menor es 1.
+
+b)$$S = \left(\begin{array}{cc} 
+5 & -4\\
+-4 & 5
+\end{array}\right)$$
+
+```{r}
+S2 <- matrix(c(5,-4,-4,5),nrow = 2, byrow = T)
+lambdas2 <- eigen(S2)$values
+(eje.mayor <- sqrt(max(lambdas2)))
+(eje.menor <- sqrt(min(lambdas2)))
+
+mu <- c(0, 0)  #vector medias
+DC <- chol(S2) # descomposición de Cholesky
+angl <- seq(0, 2*pi, length.out=200) 
+elipse.esc <- 1 * cbind(cos(angl), sin(angl)) %*% DC # elipse escalada
+elipseCentro <- sweep(elipse.esc, 2, mu, "+") # centramos en la media
+plot(elipseCentro, type="l", lwd=2, asp=1, xlab="x",ylab="y", main="b)")
+points(mu[1], mu[2], pch=4, lwd=2, col="red") 
+#Ejes en la dirección de las componentes principales:
+Sinv <- solve(S1) #inversa de la matriz de covarianzas
+DE <- eigen(Sinv) #descomposición espectral de Sinv
+s1 <- 2 #factor de escala
+s2 <- 1
+arrows(x0 = mu[1], y0 = mu[2],
+x1 = mu[1] + s1*DE$vectors[1,1], y1 = mu[2] + s1*DE$vectors[2,1], length = 0.1, col = "red")
+arrows(x0 = mu[1], y0 = mu[2],
+x1 = mu[1] + s2*DE$vectors[1,2], y1 = mu[2] + s2*DE$vectors[2,2], length = 0.1, col = "red")
+```
+
+
+
+Al igual que en el inciso anterior el eje mayor es 3 y el menor es 1.
+
+
+c)$$S = \left(\begin{array}{cc} 
+3 & 0\\
+3 & 3
+\end{array}\right)$$
+```{r}
+S3 <- matrix(c(3,0,0,3),nrow = 2, byrow = T)
+lambdas3 <- eigen(S3)$values
+(eje.mayor <- sqrt(max(lambdas3)))
+(eje.menor <- sqrt(min(lambdas3)))
+
+
+mu <- c(0, 0)  #vector medias
+DC <- chol(S3) # descomposición de Cholesky
+angl <- seq(0, 2*pi, length.out=200) 
+elipse.esc <- 1 * cbind(cos(angl), sin(angl)) %*% DC # elipse escalada
+elipseCentro <- sweep(elipse.esc, 2, mu, "+") # centramos en la media
+plot(elipseCentro, type="l", lwd=2, asp=1, xlab="x",ylab="y", main="c)")
+points(mu[1], mu[2], pch=4, lwd=2, col="red") 
+#Ejes en la dirección de las componentes principales:
+Sinv <- solve(S1) #inversa de la matriz de covarianzas
+DE <- eigen(Sinv) #descomposición espectral de Sinv
+s <- 1.5 #factor de escala
+arrows(x0 = mu[1], y0 = mu[2],
+x1 = mu[1] + s*DE$vectors[1,1], y1 = mu[2] + s*DE$vectors[2,1], length = 0.1, col = "red")
+arrows(x0 = mu[1], y0 = mu[2],
+x1 = mu[1] + s*DE$vectors[1,2], y1 = mu[2] + s*DE$vectors[2,2], length = 0.1, col = "red")
+```
+
+
+
+En este caso tanto el eje menor como el mayor son 1.7
+##Ejercicio 5
+
+Leyendo la base de datos.
+
+```{r,'Excercise 5'}
+#read databse
+file <- 'INEGIConstruccion2017.csv'
+df_inegi <- read.csv(file = paste(file,sep = ""),header = T,skip = 0) #skip lines
+
+```
+
+Observamos que las variables están colocadas de manera continua sobre todas las columnas, son 215 variables. Queremos hacer una matriz $X$ donde sus variables sean las mencionadas anteriormente y sus oobservaciones sean los estados para enero del 2017.
+
+Además, notamos lo siguiente:
+- Hay columnas faltantes.
+- Entre cada variable, hay un _total nacional_. (Se optará por eliminarlo, ya que produce colinealidad).
+- De la variable __Valor de producción generado ...__, sólo hay _16_ observaciones. Por lo que quitar los renglones _NO_ es opción. Se hará un remuestreo con reemplazo para asignar el valor de las variables.
+
+### 5a. $X$ configurada para operar.
+Se limpiará a continuación la base de datos de forma manual, debido a que no hay un patrón definido.
+```{r,'Ex5 DataWrangling'}
+set.seed(42)
+#copy raw data
+file2 <- 'inegiClean.csv'
+
+#clean
+df_raw <- read.csv(file2,header = FALSE)
+df_raw <- as.matrix(df_raw)
+
+#data is transposed
+df_raw <- t(df_raw)
+df_raw[17:32,2] <- sample(df_raw[1:16,2], size = 16, replace = T)
+X <- df_raw
+
+#look
+tail(X)
+```
+
+###5.b Calculate the mean vector and the variance and covariance matrix
+```{r,'Ex5 Xbar, Cov'}
+mean_vec <- colMeans(X)
+Sprime <- cov(X)
+
+cat("\n Vector de medias\n")
+kable(mean_vec,caption = "Vector de medias", digits = 3)
+
+cat("\n Matriz de var y cov\n")
+kable(Sprime, col.names = c("X1","X2","X3","X4","X5","X6","X7"), digits = 3)
+
+
+```
+
+### 5c. Verificar det($S$) = $\prod_{i=1}^{7}s^{2} \text{det}(R)$
+
+```{r,'Ex5c'}
+detS <- det(Sprime)
+
+#prove det
+prodaux <- 1
+
+#measure vars
+Rprime <- cor(X) #corr matrix
+n <- ncol(X) #number of vars
+D <- diag(x = eigen(Sprime)$values,)
+
+for(i in 1:n)
+  prodaux <- prodaux * D[i,i] * det(Rprime) 
+  
+```
+
+
+##Ejercicio 6
+
+Sea $\underline{X} \sim \mathcal{N}_{3}(\underline{\mu},\Sigma)$ con $\underline{\mu}$ y $\Sigma$ definidas como en la tarea. Determinar cuales de las sig vars son independientes y porqué:
+
+- $X_{1} \ \text{y} \ X_{2}$: __Dependientes__, debido a que la covarianza entre ellas es distinta de cero.
+- $X{2} \ \text{y} \ X_{3}$: __Independientes__, ya que la covarianza entre ellas es cero.
+- $(X_{1},X_{2}) \ \text{y} \ X_{3}$: __Independientes__ ya que el bloque de la matriz $\Sigma$ para $X_{1,2} \ \text{y} \  X_{3}$ tiene ceros en los traingulos superiores e inferiores.
+- $\frac{(X_{1} +X_{2})}{2} \ \text{y} \ X_{3}$: __Independientes__, por el inciso anterior.
+- $X_{2} \ \text{y} \ X_{2} - \frac{5}{2}X_{1} - X_{3}$: __Dependientes__. Pues ambas variables _dependen_ del valor que tome $X_{2}$.
+
+##Ejercicio 7
+7. Sea $X \sim N(\mu,\Sigma)$ con $$\mu' = (2,-3,1)$$ y $$\Sigma = \left(\begin{array}{cc} 
+1 & 1 & 1\\
+1 & 3 & 2 \\
+1 & 2 & 2
+\end{array}\right)$$
+
+a) Encuentra la distribucion de $3X_1 - 2X_2 + X_3$
+
+Dado que $X \sim N$, sabemos que sus marginales tambien lo seran. Tambien podemos afirmar que cualquier combinacion lineal sigue tambien una distribucion normal. Para resolver este inciso utilizamos la siguiente fomula.
+$$ a'X \sim N(a'\mu, a'\Sigma a)$$
+Por lo cual obtenemos la media y varianza de la siguiente manera.
+```{r}
+v = c(3,-2,1)
+mu.7 <- c(2,-3,1)
+s.7 <- matrix(c(1,1,1,1,3,2,1,2,2), nrow = 3, ncol = 3, byrow = TRUE)
+(MU.7 <- as.numeric(t(v)%*%mu.7))
+(S.7 <- as.numeric(t(v)%*%s.7%*%v))
+```
+Por lo tanto $3X_1 - 2X_2 + X_3 \sim N(13,9)$
+
+b) Encontrar un vector $a$ tal que $X_2$ y $X_2 - a'(X_1,X_2)'$ sean independientes.
+
+Para resolver esto, basta con encontrar $a\epsilon \Re^2$ tal que la covarianza de $X_2$ y $X_2 - a'(X_1,X2)'$ sea cero.
+$$\begin{array}{l}
+cov(X_2,X_2 - a'(X_1,X_2)') = cov(X_2, X_2 - a_1X_1 + a_2X_2)\\
+= cov(X_2,X_2) - a_1cov(X_1,X_2) - a_2cov(X_1,X_2)\\
+= S_{22} -a_1S_{12} - a_2S_{22} 
+= 3 -a_1 - 3a_2
+\end{array}$$
+
+Por lo tanto 
+$$cov(X_2,X_2 - a'(X_1,X_2)') = 0 $$ 
+$$\Leftrightarrow  3 -a_1 - 3a_2 = 0$$
+$$\Leftrightarrow  a_1+3a_2 = 3$$
+Para lo cual existe toda una recta de combinaciones que cumple estas condiciones.
+Basta con tomar $$\begin{array}{l}
+a_1 = 0 \\
+a_2 = 1
+\end{array}$$
+##Ejercicio 8
+
+Sea $y_{i} = Ax_{i} + b, \quad i = 1,\dots,n$, mostrar que
+
+### 8.i) $\bar{y} = A\bar{x} + b$
+
+
+Sea  $\bar{y} = A\bar{x} + b$, vemos que:
+\begin{equation*}
+\bar{y} = \frac{1}{n}\sum_{i=1}^{m}y_{i} =\frac{1}{n}\sum_{i=1}^{m}{(Ax_{i} + b)} = \frac{1}{n}\sum_{i=1}^{m}(Ax_{i}) + b 
+        = A \frac{1}{n}\sum_{i=1}^{m}(x_{i}) + b = A\bar{x} + b.
+\end{equation*}
+
+
+
+### 8.ii) $S_{y} = A S_{y} A^{T}$
+
+Usando el teorema de proba2 que dice que
+$$ \text{var}(A\underline{X}) = A \text{var}(\underline{X}) A^{T},$$
+entonces tendremos que
+$$S_{y} = \text{var}{\underline{Y}} = \text{var}(A\underline{X} + b) = \text{var}(A\underline{X}) = A\text{var}(\underline{X})A^{T} = AS_{x}A^{T}.$$
+##Ejercicio 9
+a) Para el vector de medias sabemos que el vector de medias de una matriz $X$ está dado por $\bar{x}$=
+$\begin{bmatrix} \bar{x_1}\\ \bar{x_2}\end{bmatrix}$ con $\bar{x_i}$=$\frac{1}{n}\sum_{i=1}^{n}x_{1i}$
+
+Por otro lado, $X_1^T1$= $\begin{bmatrix} x_{11}\ x_{12}\ \cdots \ x_{147}\\ \ x_{21}\ x_{22}\ \cdots\ x_{247}\end{bmatrix} \begin{bmatrix} 1 \\ \vdots \\ 1\end{bmatrix}$=$\begin{bmatrix} \sum_{i=1}^{n}x_{1i}\\  \sum_{i=1}^{n}x_{2i}\end{bmatrix}$=$\begin{bmatrix} 110-9\\ 432.5\end{bmatrix}$. Por lo tanto, el vector de medias es: $\bar{x_1}=$X_1^T1$=
+$\begin{bmatrix} 2.36\\ 9.2\end{bmatrix}$
+
+```{r}
+a<-c(110.9, 432.5) #x^t1
+(vec_med<-a/47)
+```
+
+
+Sabemos que S (matriz de varianzas y covarianzas) se escribe como $S= \frac{1}{n} \Sigma$ con $\Sigma=A^TA$ y $A=X-11^TX$ donde $X$ es una mátriz de tamaño nxp que contiene las observaciones y $1$ es un vector de unos de tamaño nxp.
+En este caso tenemos $n=47$. Si desarrolamos, $\Sigma=X^TX-\frac{2}{n}(X^T1)(X^T1)^T+\frac{1}{n^2}(X^T1)1^T1(X^T1)^T$. Ya tenemos los resultados de $X^TX$ y de $X^T1$. Calculamos entonces la S:
+
+```{r}
+xtx<-matrix(c(265.12, 1029.62, 1029.62,4069.71),nrow=2,byrow=T)
+uno<-c(rep(1, 47))
+a<-c(110.9, 432.5) #x^t1
+```
+
+```{r}
+sigma<-xtx-(2/47)*a %*% t(a)+(1/47)**2*a%*%t(uno)%*%uno%*%t(a)
+```
+
+```{r}
+(s=(1/47)*sigma)
+```
+
