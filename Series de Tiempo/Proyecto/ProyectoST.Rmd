@@ -1,0 +1,176 @@
+---
+title: "ProyectoST"
+output: html_document
+---
+
+```{r}
+library(forecast)
+library(ggplot2)
+
+gas<-read.csv("gasoline_data2CSV.csv")
+```
+
+```{r}
+dataGas<-gas$Total
+serie<-ts(dataGas)
+serie<- ts(serie,frequency=12,start=c(2008,2))
+
+plot.ts(serie, col='blue')
+
+
+auto.arima(serie)
+
+#aplicamos diferencias
+
+st.d1<-diff(st) #Una diferencia regular
+st.d1.f1<-diff(st.d1, lag=12)
+
+
+#Plot st.d1
+Acf(st.d1, lag.max = 24, type = "correlation", plot = TRUE, na.action = na.contiguous, demean = TRUE)
+Pacf(st.d1, lag.max = 24, plot = TRUE, na.action = na.contiguous, demean = TRUE)
+
+#Plot st1.d1.f1
+Acf(st.d1.f1, lag.max = 24, type = "correlation", plot = TRUE, na.action = na.contiguous, demean = TRUE)
+Pacf(st.d1.f1, lag.max = 24, plot = TRUE, na.action = na.contiguous, demean = TRUE)
+
+
+```
+
+```{r}
+gas<-read.csv("gasoline_dataCSV.csv")
+dataGas<-gas$Total
+serie<-ts(dataGas)
+serie<- ts(serie,frequency=12,start=c(2005,12))
+
+plot.ts(serie, col='blue')
+
+
+#auto.arima(serie)
+
+
+serie <- log(serie)
+#aplicamos diferencias
+serie.d1<-diff(serie) #Una diferencia regular
+
+
+
+#Plot st.d1
+Acf(serie.d1, lag.max = 24, type = "correlation", plot = TRUE, na.action = na.contiguous, demean = TRUE)
+Pacf(serie.d1, lag.max = 24, plot = TRUE, na.action = na.contiguous, demean = TRUE)
+
+
+#Declaramos el modelo
+modelo1<-arima(serie,c(2,1,2),seasonal = list(order = c(0,0,2), period = 12))
+
+#validacion de spustos
+
+#                           Normalidad en los errores
+residuales<-as.vector(modelo1$residuals)
+plot.ts(residuales) #no hay residuales significativamente distintos de cero
+abline(h=2*sd(residuales), untf=FALSE)
+abline(h=-2*sd(residuales), untf=FALSE)
+abline(h=3*sd(residuales), untf=FALSE, col='red')
+abline(h=-3*sd(residuales), untf=FALSE, col='red')
+mean(residuales) # validando con valor en shiny en valor absoluto
+sd(residuales)
+acf(residuales,, ylab = "at estimada", xlab = "t") 
+Box.test(modelo1$residuals, lag = 24, type = 'Ljung') #pag 154
+Box.test(modelo1$residuals, lag = 11, type = 'Ljung')
+
+#                               Varianza constnte
+plot(residuales)
+
+plot(modelo1)
+```
+
+
+
+```{r}
+#                                     Prediccion
+XAG_t<-log(serie)
+XAG <- ts(dataGas)
+XAG <- ts(XAG,frequency=12,start=c(2005,12))  
+XAG_train<-XAG[1:157]  
+XAG_train<- ts(XAG_train,frequency=12,start=c(2005,12))
+length(XAG_train)
+plot.ts(XAG_train)
+XAG_test<-XAG_t[158:length(XAG_t)]
+XAG_test<-ts(XAG_test,frequency=12,start=c(2019,1)) #enero 2019
+plot.ts(XAG_test)
+length(XAG_test)
+test<-c(rep(0,length(XAG_train)),XAG_test)
+test<-ts(test,frequency=12,start=c(2005,12))
+plot(test)
+
+
+auto.arima(XAG_train_t)
+
+test_mod<-arima(XAG_train_t,c(2,1,2),seasonal = list(order = c(0,0,2), period = 12))
+resid_test<-as.vector(test_mod$residuals)
+hist(resid_test)
+mean(resid_test)
+sd(resid_test)
+plot(resid_test) #no hay residuales significativamente distintos de cero
+abline(h=2*sd(resid_test), untf=FALSE)
+abline(h=-2*sd(resid_test), untf=FALSE)
+abline(h=3*sd(resid_test), col = "red", untf=FALSE)
+abline(h=-3*sd(resid_test), col = "red", untf=FALSE)
+
+
+predicciones<-forecast(test_mod, h=12, level=c(95))
+plot(predicciones, main='')
+par(new=TRUE)
+plot( XAG_t, col="red",main='')
+
+#necesarios para hacer los pronosticos en la serie original
+errores<-c(predicciones$residuals,XAG_test-predicciones$mean)
+var_errores_pred<-c()
+for (i in 1:length(XAG_test)) {
+  var_errores_pred[i]<-var(errores[1:80+i])
+}
+#factor de correcion por sesgo lambda=-1
+lam=-1
+correccion<- 1/(0.5 + 0.5*sqrt(1-2*lam*(lam-1)*((1+lam*predicciones$mean)^(-2))*var_errores_pred))
+length(correccion)
+tail(correccion)
+#predicciones_originales<-predicciones
+#predicciones_originales$originales<-InvBoxCox(predicciones$mean, lambda = -1, biasadj=TRUE, fvar = var_errores_pred)
+predicciones_originales<-data.frame( correcion*(1/predicciones$mean), correcion*(1/predicciones$lower), correcion*(1/predicciones$upper))
+colnames(predicciones_originales)<- c('pred', 'lower', 'upper')
+
+p<-c(XAG_train,predicciones_originales$pred)
+low<-c(XAG_train,predicciones_originales$lower)
+up<-c(XAG_train,predicciones_originales$upper)
+XAG_pred<-ts(p,frequency=12,start=c(2011,2))
+XAG_low<-ts(low,frequency=12,start=c(2011,2))
+XAG_up<-ts(up,frequency=12,start=c(2011,2))
+
+plot( XAG_pred, col="red",ylim=range(c(0,50)) , main='', ylab='XAG')
+par(new=TRUE)
+plot( XAG_low, col="green",ylim=range(c(0,50)) , main='', ylab='XAG')
+par(new=TRUE)
+plot( XAG_up, col="blue",ylim=range(c(0,50)) , main='', ylab='XAG')
+par(new=TRUE)
+plot(XAG,ylim=range(c(0,50)), main='', ylab='XAG')
+```
+
+```{r}
+gas2<-read.csv("gasoline_data2CSV.csv")
+dataGas2<-gas2$Total
+s18<-ts(dataGas2)
+s18<- ts(s18,frequency=12,start=c(2005,12))
+
+
+#Modelo
+s18t<-log(s18)
+modelo1<-arima(s18t,c(2,1,2),seasonal = list(order = c(0,0,2), period = 12))
+
+#Serie
+plot.ts(s18, col='blue')
+par(new = TRUE)
+plot.ts(modelo1$model)
+
+```
+
+
