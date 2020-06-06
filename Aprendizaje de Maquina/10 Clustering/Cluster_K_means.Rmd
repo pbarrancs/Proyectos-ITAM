@@ -1,0 +1,49 @@
+---
+title: "Clustering"
+author: "Pablo, Eva"
+date: "22/5/2020"
+output: html_document
+---
+
+# K-Means
+```{r, echo = FALSE}
+library(factoextra)
+set.seed(151528)
+```
+
+Cargamos el data frame de Iris. Y le quitamos la variable categorica.
+```{r,echo=FALSE}
+#Cargamos los datos
+data("iris")
+df <- iris
+df$Species <- NULL #quitamos la categoria de Species
+```
+
+Para dererminar cuantos centroides necesitamos hacemos la siguiente grafica de codo.
+```{r}
+fviz_nbclust(df, kmeans, method = "wss") +
+geom_vline(xintercept = 3, linetype = 2)
+```
+Podriamos pensar que con dos o tres clusters podriamos hacer un buen analisis. El la suma de cuadros parece estabilizarse mas a partir de tres clusters. Por lo que usaremos 3 centroides y con la norma euclidiana.r
+
+```{r}
+#hacemos el metodo con 3 centroides
+mod1 <- kmeans(df,3)
+mod1
+```
+Comparamos losresultados de clasificación con los datos originales y Obtenemos la matriz de confusión.
+```{r}
+table(iris$Species,mod1$cluster)
+```
+Podemos ver que para _Setosa_ la clasificación fue perfecta. Mientras que para _Versicolor_ y _Virginica_ hubo mas errores. _Versicolor_ tuvo dos clasificaciones incorrectas ientras que _Virginica_ catorce.
+
+```{r}
+plot(df$Sepal.Length,df$Sepal.Width,col=mod1$cluster, xlab="Sepal.Widht", ylab="Sepal.Lenght")
+points(mod1$centers[,c("Sepal.Length","Sepal.Width")], col=1:3, pch=16,cex=2)
+```
+
+
+Los centroides son los puntos grandes en la grafica.
+
+
+

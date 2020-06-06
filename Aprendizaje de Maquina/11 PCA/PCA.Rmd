@@ -1,0 +1,89 @@
+---
+title: "PCA"
+author: "Pablo, Eva"
+date: "22/5/2020"
+output: html_document
+---
+
+
+# Principal Component Analysis
+```{r,echo=FALSE}
+library(tidyverse)
+library(factoextra)
+library(gridExtra)
+```
+Primero cargamos los datos Motor Trend Car Road Tests _mtcars_ .
+```{r}
+str(mtcars)
+```
+Tenemos 32 observaciones con 11 variables numericas.Para calcular los componentes principales, usaremos la matriz de correlación dado que las unidades de nuestras variables son distintas.
+
+```{r, echo=FALSE, include = FALSE}
+#solo para comparar y para fines graficos
+z <- princomp(mtcars,cor = T)
+summary(z, loadings=T)
+```
+Para eso scamos la matriz de correlacion $R$ que es la siguiente.
+
+```{r}
+(R <- round(cor(mtcars),3))
+```
+Ahora para calcular las componentes principales encontraremos sus egienvecores.
+
+
+```{r}
+eig <- eigen(R)
+(y <- round(eig$vectors,3))
+```
+Podemos ver que los primeros dos componentes principales obtenidos de la matriz de correlación, son los siguientes.
+$$\begin{array}{l}
+Y_{1} = 0.3639X_{1} -0.3749X_{2} -0.3689X_{3} -0.3309X_{4}  +0.2949X_{5} -0.3469X_{6}  +0.2009X_{7}  +0.3079X_{8}  +0.2359X_{8}  +0.2079X_{10}\\
+Y_{2} = -0.016X_{1} -0.044X_{2}  +0.049X_{3} -0.249X_{4} -0.275X_{5}  +0.143X_{6}  +0.463X_{7}  +0.232X_{8} -0.430X_{9} -0.462X_{10}\\
+\end{array}$$
+Una interpretación al primer componente principal, podriamos verlo como un promedio ponderado ya que los coeficientes tienen mas o menos la misma magnitud.
+Para la segunda componente principal, vemos que tiene signo negativo las coeficientes correspondientes a caracteristicas tecnicas del auto que podrian caracterizarlo como deportivo y con signo positivo aquellas caracteristicas de rendimiento de los vehiculos. 
+
+### Graficas y Analisis
+
+Haremos la grafica de codo correspondiente, para dererminar cuales son las componentes mas significativas.
+Para realizar esto, veremos que tanta varianza aporta cada componente principal, mediante el siguiente razonamiento.
+
+$$\frac{\lambda_{k}}{p}$$
+
+Donde $\lambda_k$ es la k-esima componente principal y p es la suma de la diagonal de la matriz de covarianza $R$. 
+
+
+```{r}
+fviz_screeplot(z,barfill = "steelblue",barcolor = "steelblue",linecolor = "red",addlabels =TRUE)
+```
+
+
+Observamos que con los primeros dos componentes principales acumulamos un $84\%$ de variabilidad de la muestra por lo tanto podemos hacer un alaisis con estos dos.
+
+Veremos que tanto contribuyen y a que dimension las variables de nuestro dataset.
+
+```{r}
+fviz_pca_var(z,col.var="contrib")
+```
+
+```{r}
+gr1 <- fviz_contrib(z,choice = "var", axes = 1)
+gr2 <- fviz_contrib(z,choice = "var", axes = 2)
+grid.arrange(gr1, gr2, ncol = 2)
+```
+
+Ahora podemos ver el comportamiento en dos dimensiones de nuestros datos a partir de los primeros dos componentes prinicpales.
+
+```{r}
+fviz_pca_biplot(z,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "cos2", # Color by the quality of representation
+                gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                repel = TRUE  
+                )
+```
+
+
+Podemos ver que del lado derecho de la grafica en su mayoria son automoviles que no provienen de marcas estdounidenses y que su consumo en gasolina es menor.
+Por el otro lado del lado izquierdo apuntan a automoviles con mayor uso de combustible y en su mayoria de marcas estadounidenses.
+En la parte superior podemos ver autos deportivos y en su mayoria europeos.
