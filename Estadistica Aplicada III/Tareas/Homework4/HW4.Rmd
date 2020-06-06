@@ -1,0 +1,1233 @@
+---
+title: "hm4"
+author: "Pablo, Román, Sofia"
+date: "5/5/2020"
+output:
+  html_notebook: default
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r, include = FALSE}
+set.seed(20200420) #created at date
+# assigning number of excercises 
+(people_3quest <- sample(x = c("Roman","Pablo","Sof"),replace = F, size = 2)) #people with 3 questions, by alphabetic order
+# assinging excersises
+number_ex <- 1:10 #excercises
+cat("\nEjercicios Roman: ")
+(ex_luis <- sample(x = number_ex, replace = F, size = 4))
+number_ex <- number_ex[! number_ex %in% ex_luis] #removing questions 
+cat("\nEjercicios Pablo: ")
+(ex_roman <- sample(x = number_ex, replace = F, size = 3))
+number_ex <- number_ex[! number_ex %in% ex_roman] #removing questions 
+cat("\nEjercicios Sof: ")
+(ex_sof <- number_ex)
+```
+
+```{r setup, include=FALSE, results=FALSE}
+#Instalar las librerias necesarias y cargarlas
+instalar <- function(paquete) {
+    if (!require(paquete,character.only = TRUE,
+                 quietly = TRUE, 
+                 warn.conflicts = FALSE)){
+          install.packages(as.character(paquete),
+                           dependecies = TRUE,
+                           repos = "http://cran.us.r-project.org")
+          library(paquete,
+                  character.only = TRUE, 
+                  quietly = TRUE,
+                  warn.conflicts = FALSE)
+    }
+}
+libs <- c( 'HistData', 'rrcov', 'nortest', 'corrplot', 'CCA', 
+'candisc','car','dummies','corrplot','knitr','ggplot2', 'MASS', 'reshape2','cowplot')
+lapply(libs, instalar)
+```
+
+
+## Ejercicio 1
+Sea $$\rho_{12}  = \left(\begin{array}{cc} 
+\rho & \rho\\
+\rho & \rho
+\end{array}\right)$$ y $\rho_{11} = \rho_{22}$, 
+con $$\rho_{22}  = \left(\begin{array}{cc} 
+1 & \rho\\
+\rho & 1
+\end{array}\right)$$correspondientes a la correlacion de $X^{(1)}$ y $X^{(2)}$ donde cada una tiene dos componentes.
+
+### a) Determine las variables canonicas correspondientes a la relacion canonica distinta de cero.
+Primero calculamos $\rho_{11}^{-1/2}$ y $\rho_{22}^{-1}$.
+
+$$\rho_{11}^{-1/2}  = \left(\begin{array}{cc} 
+\frac{1}{2}[(1+\rho)^{-1/2} + (1 - \rho)^{-1/2}] & \frac{1}{2}[(1+\rho)^{-1/2} - (1 - \rho)^{-1/2}]\\
+\frac{1}{2}[(1+\rho)^{-1/2} - (1 - \rho)^{-1/2}] & \frac{1}{2}[(1+\rho)^{-1/2} + (1 - \rho)^{-1/2}]
+\end{array}\right)$$.
+
+$$\rho_{22}^{-1}  = \left(\begin{array}{cc} 
+\frac{1}{(1-\rho^2)} & \frac{-\rho}{(1-\rho^2)}\\
+\frac{-\rho}{(1-\rho^2)} & \frac{1}{(1-\rho^2)}
+\end{array}\right)$$
+
+Al realizar el producto matricial $\rho_{11}^{-1/2}\rho_{12} \rho_{22}^{-1}\rho_{21}\rho_{11}^{-1/2}$ obtenemos la siguiente matriz.
+
+$$\left(\begin{array}{cc} 
+\frac{2\rho^2}{(1+\rho)^2} & \frac{2\rho^2}{(1+\rho)^2}\\
+\frac{2\rho^2}{(1+\rho)^2} & \frac{2\rho^2}{(1+\rho)^2}
+\end{array}\right)$$
+
+Ahora sacamos su egienvalor no asociado al espacio nulo y le sacmos raiz.
+
+$$\rho_{1}^* = \sqrt{\rho_{1}^{*2}} = \sqrt{\frac{4\rho^2}{(1+\rho)^2}} = \frac{2\rho}{(1+\rho)}$$
+Con $0 < \rho < 1$.
+El eigenvector asociado a $\rho_{1}^{*2}$ es el siguiente.
+$$e_{1}  = \left(\begin{array}{c} 
+1\\
+1
+\end{array}\right)$$
+Ahora calculamos $a_1$ de la siguiente forma
+$$a_1 = \rho_{11}^{-1/2}e_1 = \left(\begin{array}{cc} 
+\frac{1}{\sqrt{1+\rho}} \\
+\frac{1}{\sqrt{1+\rho}}
+\end{array}\right)$$
+Ahora para vemos si cumple la condicion de que $a_1' \rho_{11} a_1 = 1$ hacemos el siguiente calculo.
+$$a_1' \rho_{11} a_1 = \left(\begin{array}{cc} 
+\frac{1}{\sqrt{1+\rho}} & \frac{1}{\sqrt{1+\rho}}
+\end{array}\right)
+\left(\begin{array}{cc} 
+1 & \rho\\
+\rho & 1
+\end{array}\right)
+\left(\begin{array}{cc} 
+\frac{1}{\sqrt{1+\rho}} \\
+\frac{1}{\sqrt{1+\rho}}
+\end{array}\right) = 2$$
+Por lo cual normalizamos $a_1$ divivendolo entre $\sqrt{2}$ de donde obtenemos que
+$$a_1 = \left(\begin{array}{cc} 
+\frac{1}{\sqrt{2(1+\rho)}} \\
+\frac{1}{\sqrt{2(1+\rho)}}
+\end{array}\right)$$
+Ahora sabemos que $f_1$ es el eigenvector asociado al eigenvalor mas grande de $\rho_{22}^{-1/2} \rho_{21} \rho_{11}^{-1} \rho_{12} \rho_{22}^{-1/2}$ pero como $\rho_{11} = \rho_{22}$ y $\rho_{12} = \rho_{21}$. Tenemos que $f_1$ es el eigenvector asociado al eigenvalor mas grande de $\rho_{11}^{-1/2} \rho_{12} \rho_{22}^{-1} \rho_{21} \rho_{11}^{-1/2}$  que es lo mismo que decir que $f_1 = e_1$.
+Dandonos como resultado lo siguiente.
+$$U_1 = e_1'\rho_{11}^{-1/2} = a_1'X^{(1)} = \frac{1}{\sqrt{2(1+\rho)}}[X_1^{(1)} + X_2^{(1)}] $$
+$$U_1 = f_1'\rho_{22}^{-1/2} = b_1'X^{(2)} = \frac{1}{\sqrt{2(1+\rho)}}[X_1^{(2)} + X_2^{(2)}]$$
+### b) Generalice el resultado para el caso dende $X^{(1)}$ tiene $p$ componentes y $X^{(2)}$ tiene $q$ con $q \geq p$
+
+Para la generalización corresponiende, podemos escribir la matriz $\Sigma_{XY} = \rho 1_p 1_q^T$ y $\Sigma_{YX} = \rho 1_q 1_p^T$ con $1_k \in \mathbb{R}^k$ un vector de unos. De donde obtenemos que 
+$$\Sigma_X = [1+(p-1)\rho]1_{p}$$
+$$\Sigma_X^{-1} = \frac{1}{1+(p-1)\rho}1_{p}$$ 
+Analogamente
+$$\Sigma_Y = [1+(q-1)\rho]1_{q}$$
+$$\Sigma_Y^{-1} = \frac{1}{1+(q-1)\rho}1_{q}$$ 
+De donde 
+
+$$A = \Sigma_{Y}^{-1}\Sigma_{Y}\Sigma_{X}\Sigma_{X}^{-1}\Sigma_{XY}$$
+$$\Rightarrow A = \Sigma_{Y}^{-1}(\rho1_q1_p^T)\Sigma_{X}^{-1}(\rho1_p1_q^T)$$
+$$\Rightarrow A = \rho^2 (\Sigma_{Y}^{-1}1_q)1_p^T(\Sigma_{X}^{-1}1_p)1_q^T$$
+$$\Rightarrow A = \rho^2 (\Sigma_{Y}^{-1}1_q)1_p^T(\Sigma_{X}^{-1}1_p)1_q^T$$
+$$\Rightarrow A = \rho^2 (\frac{1}{1+(q-1)\rho}1_{q})1_p^T(\frac{1}{1+(p-1)\rho}1_{p})1_q^T$$
+
+$$\Rightarrow A = \frac{\rho^2p}{[1+(q-1)\rho][1+(p-1)\rho]}1_q1_q^T$$
+$$\therefore A = K_a 1_{q \times q}$$
+con $K_a = \frac{\rho^2p}{[1+(q-1)\rho][1+(p-1)\rho]}$ y $1_{q \times q}$ la matriz llena de unos en cada entrada de $q \times q$.
+
+Encontramos ahora los egigenvalores no asociados al cero y sus eigenvectores espectivos. Como K es una constante basta con sacar el dereminante de $1_q1_q^T$ y multipicarlo por la constante $K_a$.
+Para esto sera necesario usar el siguiente resultado.
+$\forall x,y \in \mathbb{R}^n $ con $x \neq 0$, entonces $\exists Q \in \mathbb{R}^{n \times n} $ s.p.d tal que $Qe_1 = x$ y $y^TQ = Z^T$ con $e1$ el vector canonico. Donde se cumple lo siguiente.
+$$det(xy^T - \lambda I ) = (-\lambda)^{n-1}(z_1 - \lambda)$$
+con $z = y^Tx$
+Entonces
+
+$$det(1_q1_q^T-\lambda I) = 0 \iff \lambda = q$$
+$$\iff (-\lambda)^{q-1}(z_1 - \lambda)$$
+$$\iff \lambda = z_1$$
+$$\iff \lambda = 1_q^T1_q$$
+$$\iff \lambda = q$$
+Su vector asociado se calcula de la siguiente forma.
+
+$$(1_q1_q^T)a = \lambda a$$
+$$\iff \frac{(1_q^Ta)}{\lambda}1_q = a$$
+$$\therefore a = c1_q$$
+con $c \in \mathbb{R}$
+De forma que el el eigenvector no asociado al espacio nulo es $\lambda_a =  K_aq$ con eigenvector asociado $a = 1_q$ Analogo para $B$, su eigenvalor es $\lambda_b = K_bp$ con eigenvector asociado $b = 1_p$
+con $K_b =  \frac{\rho^2pq}{[1+(q-1)\rho][1+(p-1)\rho]}$
+
+
+## Ejercicio 2
+En un estudio sobre pobreza, cimen y disuacion, Perker y Smith[10] reportan las estadisticas sobre las suma de crimen en varios estados en los años 1970 y 1973. Una porcion  de la matriz de correlacion esta dada por
+$$R = \left(\begin{array}{cc} 
+R_{11} & R_{12} \\
+R_{21} & R_{22} 
+\end{array}\right) $$
+$$R_{11} = \left(\begin{array}{cc} 
+1.0 & .615 \\
+.615 & 1.0 
+\end{array}\right)$$
+$$R_{12} = \left(\begin{array}{cc} 
+-.111 & -.266 \\
+-.195 & -.085 
+\end{array}\right)$$
+$$R_{21} = \left(\begin{array}{cc} 
+-.111 & -.266 \\
+-.195 & -.085 
+\end{array}\right)$$
+con $$R_{22} = \left(\begin{array}{cc} 
+1.0 & -.269 \\
+-.269 & 1.0 
+\end{array}\right)$$
+Las variables son $X_1^{(1)}$ homicidios no primarios en 1973 ,$X_1^{(2)}$ homicidios primarios en 1973 (es decir homicidios que involucren a familiares) $X_2^{(1)}$ severidad del castigo (horas de servicio) en 1970, $X_2^{(2)}$ certeza del castigo (admisiones a prision dividido entre numero de homicidios).
+### a) Encuentras correlaciones canonicas de la muestra.
+```{r, echo=FALSE}
+#Declaramos la matriz de correlación.
+R2 = matrix(c(1.0, .615, -.111, -.266,
+              .615, 1.0, -.195, -.085,
+              -.111, -.195 ,1.0, -.269,
+              -.266, -.085,-.269, 1.0),
+               ncol = 4)
+R11.2 = R2[1:2,1:2]
+R12.2 = R2[1:2,3:4]
+R21.2 = R2[3:4,1:2]
+R22.2 = R2[3:4,3:4]
+```
+Para hacer esto lo haremos manualmente.
+Primero hacemos el calculo de la matriz $A = \Sigma_{11}^{-1}\Sigma_{12} \Sigma_{22}^{-1}\Sigma_{21}$. Y $B = \Sigma_{22}^{-1}\Sigma_{21} \Sigma_{11}^{-1}\Sigma_{12}$ Y sacaremos sus eigenvalores.
+```{r}
+#Opcion 1. Vista en clase
+#Cálculo de A (la matriz chica para estructura)
+A <- solve(R11.2) %*% R12.2 %*% solve(R22.2) %*% R21.2
+#Cálculo de B
+B <- solve(R22.2) %*% R21.2 %*% solve(R11.2) %*% R12.2
+sA <- eigen(A);
+sB <- eigen(B);
+print("Valores canonicos dados por A:")
+round(sqrt(sA$values),2)
+print("Valores canonicos dados por B:")
+round(sqrt(sB$values),2)
+```
+Obtenemos los valores canonicos(eigenvalores) $\rho_{1}^* = 0.33$, $\rho_{1}^* = 0.17$.
+
+### b) Determina los primeros pares canonicos $\hat{U}_1$ $\hat{V}_1$ e interprete los resultados.
+
+```{r}
+print("Dirección Canonica a :")
+round(sA$vectors[,1],3)
+print("Dirección Canonica b :")
+round(sB$vectors[,1],3)
+```
+Las dircciones canonicas son  $a = [1, -.003]$ y $b = [-.524, -0.851]$.
+Que nos dan como resultado las variables canonicas
+
+$$U_{1} = a'X = X_{1}^{(1)} - .003X_2^{(1)}$$
+$$V_{1} = b'X = -0.524X_{1}^{(2)} - .851X_2^{(2)}$$
+Podemos interpretar a $U_{1}$ como los homicidios no primarios en 1973, pues casi todo esta ponderado para $X_{1}^{(1)}$. Por otro lado $V_1$ podriamos verlo como un indice de castigo, pues es una ponderacion de ambas variables tratan sobre el castigo de los reos.
+
+```{r,echo = FALSE, include=FALSE}
+#Opcion 2. H de Johnsin & Wichern 
+Sx.eig <- eigen(R11.2)
+Sx.sqrt <- Sx.eig$vectors %*% diag(1/sqrt(Sx.eig$values)) %*% solve(Sx.eig$vectors)
+Sy.eig <- eigen(R22.2)
+Sy.sqrt <- Sy.eig$vectors %*% diag(1/sqrt(Sy.eig$values)) %*% solve(Sy.eig$vectors)
+#Cálculo de A
+HA <- Sy.sqrt %*% R21.2 %*%  solve(R11.2) %*% R12.2 %*% Sy.sqrt
+#Cálculo de B
+HB <- Sx.sqrt %*% R12.2 %*%  solve(R22.2) %*% R21.2 %*% Sx.sqrt
+sHA <- eigen(HA);
+sHB <- eigen(HB);
+a1 = Sx.sqrt %*% sHA$vectors[,1]
+b1 = Sy.sqrt %*% sHB$vectors[,1]
+print("Valores canonicos dados por A:")
+round(sqrt(sHA$values),2)
+print("Dirección Canonica a :")
+a1
+print("Valores canonicos dados por B:")
+round(sqrt(sHB$values),2)
+print("Dirección Canonica b :")
+b1
+#Por alguna razon los resultados son muy extraños, creo que deberian normalizarse y por lo mismo nos quedaremos con los procedimientos vistos en clase.
+```
+
+## Ejercicio 3
+Determina de la muestra sus variables canónicas y sus correlaciones. Interpreta las cantidades. Son las primeras variables canonicas un buen resumen de sus conjuntos de variables?
+
+
+```{r}
+R.3<-cbind(c(1106.0, 396.7, 108.4, .787, 26.230), c(396.7, 2382.0, 1143.0, -.214, -23.96),c(108.4,1143.0,2136.0,2.189,-20.84), c(.787, -.214, 2.189, .016, .216), c(26.23, -23.960, -20.84, .216, 70.56) )
+R11.3<-R.3[4:5,4:5];R22.3<-R.3[1:3,1:3];R12.3<-R.3[4:5,1:3];R21.3<-t(R12.3)
+A.3 <- solve(R11.3) %*% R12.3 %*% solve(R22.3) %*% R21.3
+sA.3 <- eigen(A.3);sA.3
+```
+
+El primer eigenvalor es $\lambda_1 = 0.26764579$ y entonces la correlación entre las dos primeras variables canónicas es $\sqrt{\lambda_1} =  0.5173449$. La combinación lineal correspondiente a las variables del grupo de estructura es
+           a'y = 0.99 ∗ peso_relativo − 0.0024 ∗ glucosa_plasmática_en_ayunas 
+
+```{r}
+# Cálculo de la matriz B
+B.3 <- solve(R22.3) %*% R21.3 %*% solve(R11.3) %*% R12.3
+sB.3 <- eigen(B.3);sB.3
+```
+
+La correspondiente combinación lineal es:
+b´x = 0.43 ∗ int_glucosa - 0.47 ∗ resp_in_gluoral + 0.768 ∗ins_resis
+
+La variabilidad explicada por las primeras variables canónicas es 100 $X$ $\frac{\lambda_1}{\sum{\lambda_i}}=$94%, entonces las primeras variables canonicas son un buen resumen de sus conjuntos de variables.
+
+La primer variable canónica le da un peso mucho mayor al peso relativo que a la glucosa en ayunas. Mientras que, la seguda le da más pedo a la respuesta de glucosa oral que a la intolerancia a la glucosa y resistencia a la insulina. 
+
+La variable canónica sobre medicina le da más peso al resistencia de insulida. Entre más resistencia hay, mayor es la variable canónica.
+
+## Ejercicio 4: Análisis CCA a mano
+
+En este ejercicio del libro Wishern, analizaremos la estructura de correlaciones canónicas de un decatlón.
+
+A continuación mostrareos las estructura de las correlaciones entre las variables. Vemos  que las relaciones entre las varriables son fuertes salvo el fondo de los 1500 metros (excepto con el salto).
+```{r}
+#table
+df_r <- read.csv('E9-6.csv') 
+R <- as.matrix(df_r)
+#corrplot
+corrplot(R)
+
+
+```
+
+### CCA Analisis para un subconjunto de variables
+
+Se analizarán las relaciones entre _100m_, _400m_, _salto_ contra _disco_, _javalina_, _lanzamiento de bala_.
+
+Las primeras variables canónicas muestran una correlación canónica $\rho$ del 44%. Se puede inferir de los _loadings_ de U y V que las relaciones son proporcionales entre las variables origniles salvo para los _400m_; los que mayor peso tienen son el lanzamiento de bala y el salto. 
+```{r}
+#subset
+l_subset1 <- c(1,5,2)
+l_subset2 <- c(7,9,3)
+
+#sets
+R1 <- R[l_subset1,l_subset1]
+R2 <- R[l_subset2,l_subset2]
+R12 <- R[l_subset1, l_subset2]
+R21 <- R[l_subset2, l_subset1]
+
+#cors
+A <- solve(R1) %*% R21 %*% solve(R2) %*% R12
+B <- solve(R2) %*% R12 %*% solve(R1) %*% R21
+sA <- eigen(A)
+sB <- eigen(B)
+
+#cca
+#corrs
+cat("Correlaciones\n")
+sqrt(sA$values)
+
+cat("U1\n")
+sA$vectors[,1]
+
+cat("V1\n")
+sB$vectors[,1]
+
+
+```
+
+
+
+## Ejercicio 5: Datos marketing.
+
+```{r download_dbb}
+#descargar BDD
+temp <- tempfile()
+download.file("https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank.zip", temp)
+W <- read.csv(unz(temp, "bank-full.csv"), header=T, sep=";")
+
+
+```
+
+El objetivo del concurso es _predecir_ si un usuario se va a inscribir o no a un depósito a plazo. Sin embargo haremos un análisis entre las variables.
+
+Vemos que se pueden agrupar en cuatro conjuntos:
+
+1. Atributos físicos
+2. Banco
+3. Campaña pasada
+4. Miscelanea
+
+Creemos que es de mayor interés ver la relación entre el conjunto de variables de _atributos físicos_ y _campaña pasada_ como tanmbién de _banco_ con _campaña pasada_. Esto debido a que el objetivo primordial del análisis es ver si habrá o no inscripción de depósito a plazo, así que veremos cómo se relacionan este conjunto de conjuntos de variabes con las campañas, para poder predecir la relación entre estas y el performance de la próxima campaña. 
+
+Al tener demasiadas variables categóricas con varias codificaciones, resumiremos las variables a las siguientes:
+
+1. job: 
+
+- high:
+- medium:
+- low:
+
+2. marital:
+
+- married
+- not_married
+
+3. education:
+
+- grad
+- non_grad
+
+4. conact:
+- yes
+- no
+
+5. day & month: to-numeric: Day of the year. 
+
+```{r tidydata}
+#modules
+
+to_date <- function(day, month){
+  day <- as.numeric(as.character(day))
+  month <- as.numeric(as.character(month))
+  #month has 30 days
+  days <- (month - 1) * 30 + day
+  
+  return(days)
+}
+
+
+#main
+df_main <- W
+
+#recode job
+recods_job <- "c('admin.','management','entrepreneur')='high'; c('student','self-employed','retired')='medium'; else='low'"
+df_main$job <- recode(df_main$job, recods_job)
+
+#recode marital
+recods_marital <- "c('divorced','single')='not_married'"
+df_main$marital <-  recode(df_main$marital, recods_marital)
+
+#recode education
+recods_ed <- "'tertiary'='grad';else='non_grad'"
+df_main$education <-recode(df_main$education, recods_ed)
+
+#recode contact
+recode_cont <- "c('cellular','telephone')='1';else='0'"
+df_main$contact <- recode(df_main$contact, recode_cont)
+
+#date transformation
+recode_month <- "'apr'='4'; 'aug'='8'; 'dec'='12'; 'feb'='2'; 'jan'='1'; 'jul'='7'; 'jun'='6'; 'mar'='3'; 'may'='5'; 'nov'='11'; 'oct'='10'; 'sep'='9'"
+df_main$month <- recode(df_main$month, recode_month)
+df_main$days <- mapply(FUN = to_date, df_main$day, df_main$month)
+
+#poutcome 
+df_main$poutcome <- ifelse( df_main$poutcome == 'success',1,0)
+
+
+```
+
+
+Primero veamos como se relacionan las variables
+
+### CCA Atributos físicos vs Campaña pasada
+
+```{r}
+
+#create dumms
+create_dums <- function(df, cols){
+  #create dumms
+  for (categ in cols){
+  df <- cbind(df, dummy(df[,categ], sep = '_'))
+  }
+  
+  #delete old cols
+  df[,cols] <- NULL
+  
+  #delete one dummie column to avoid colineality
+  df[,'df1_low'] <- NULL
+  df[,'df1_not_married'] <- NULL
+  df[,'df1_non_grad'] <- NULL
+  
+  return(df)
+}
+
+#### MAIN
+
+#personal atributes
+pers_set <- c('age','job','marital','education')
+past_campgn_set <- c('contact','days','duration','poutcome')
+
+
+#select variables
+df1 <- df_main[,cbind(pers_set, past_campgn_set)]
+
+#create dummies
+#dummies for personal atributes
+dumm_cols <- c('job','marital','education')
+df1 <- create_dums(df1, dumm_cols)
+
+#cols to numeric
+df1[,'contact'] <- as.numeric(as.character(df1[,'contact']))
+
+
+
+```
+
+Vemos que la estructura de correlaciones es muy suave entre las variables de la campaña pasada y los atributos físicos.
+
+```{r}
+R1 <- cor(df1, method = 'pearson')
+corrplot(R1, method = 'color', type = 'upper')
+corrplot(R1, method = 'number', type = 'upper')
+
+
+
+
+```
+
+Vemos que las correlaciones entre las variables son muy bajas, por lo que un análisis de correlación canónica es poco descriptivo. Las únicas variables que se relacionan entre si son: 
+- empleo_alto: empleo_mediano, casado, si tiene eduación alta
+- edad: si está casado, tipo de empleo, si está graduado
+- contacto: con el ouutcome pasado
+
+Sin embargo, haremos un intento por ver la relación entre ellas.
+
+### Análisis de CCA
+
+_NOTA_:
+Curiosamente los outputs de _cancor_ , _cc_ y la formulación directa por eigenvalores y eigenvectores da muy distinta. A continuación se mostrarán los resultados. 
+
+
+```{r,echo = FALSE}
+fa_lis <- c('age','df1_high','df1_medium','df1_married','df1_grad')
+fa_matrix <- df1[,fa_lis]
+
+pc_lis <- c('contact','days','duration','poutcome')
+pc_matrix <- df1[,pc_lis]
+```
+
+
+```{r CCA types}
+#CCA analisis
+cca1 <- stats::cancor(x = fa_matrix, y = pc_matrix, xcenter = FALSE, ycenter = FALSE) 
+cca2 <- cc(fa_matrix, pc_matrix)
+# cca3
+S <- cov(df1)
+Sxx <- S[1:5,1:5]
+Syy <- S[6:9,6:9]
+Sxy <- S[1:5,6:9]
+Syx <- t(Sxy)
+
+#  A and B
+A <- solve(Syy) %*%  Syx %*% solve(Sxx) %*% Sxy
+sA <- eigen(A)
+sqrt(sA$values)
+
+B <- solve(Sxx) %*% Sxy %*% solve(Syy) %*% Syx
+sB <- eigen(B)
+corCCA3 <- sqrt(sB$values)
+
+```
+
+
+Veamos las correlaciones canónicas para cada uno de los paquetes:
+```{r CCAcorrs}
+cca1$cor
+cca2$cor
+corCCA3
+```
+
+Observamos que _cancor_ muestra una $\rho_{1} = $ `r cca1$cor[1]` que es altísima a comparación de las demás.
+
+La correlación canónica más realista es la del paquete _CCA_.  En este resultado vemos que la correlación máxima lineal entre las variables del primer y segundo conjunto es del 17%. Por lo que es muy baja la relación entre un conjutno y otro, así que cualquier inferencia entre estas mismas debe tomarse con precacuión.
+
+- $COR(U_{k}, V_{j}) y COR(U_{k}, X_{j}^{i})$
+
+Observemos las correlaciones entre $U = X^{(1)}B$ y $V = X^{(2)}A$
+```{r}
+# canonical variables
+U1 <- as.matrix(fa_matrix)  %*% as.matrix(cca1$xcoef)
+V1  <- as.matrix(pc_matrix) %*% as.matrix(cca1$ycoef)
+
+U2 <- as.matrix(fa_matrix)  %*% as.matrix(cca2$xcoef)
+V2  <- as.matrix(pc_matrix) %*% as.matrix(cca2$ycoef)
+
+U3 <- as.matrix(fa_matrix) %*% sB$vectors
+V3 <- as.matrix(pc_matrix) %*% sA$vectors
+
+# plot correlation between U and V
+R1 <- cor(U1,V1)
+R2 <- cor(U2,V2)
+R3 <- cor(U3,V3)
+
+corrplot(R1,  method = 'number', col = rainbow(1000), title = 'CCA1')
+corrplot(R2,  method = 'number', col = rainbow(1000), title = 'CCA2')
+corrplot(R3,  method = 'number', col = rainbow(1000), title = 'CCA3')
+
+```
+
+Observaciones:
+
+1. _cc_ tiene la mejor estimación apegada a la teoría (las variables canónicas están intra y extra no correlacionadas salvo $U_{k}$ y $V_{k}$)
+
+2. _cc_ tiene la mejor congruencia entre sus estimaciones de correlaciones entre U y V y $\rho$. En cambio _cancor_ no converge en nada con $\rho_{1}$ y $cor(U_1, V_1)$, sin embargo las demás correlaciones canónicas son congruentes con las correlaciones muestrales entre ellas. Importante notar el caso de hacer el _calculo a mano_, ya que los $\sqrt{\lambda}$ y las correlaciones muestrales entre U y V no empatan absolutamente en nada.
+
+- Correlaciónes entre la primera variable canónica y sus componentes para cada subconjunto.
+
+```{r}
+
+corrplot(cor(U2,fa_matrix),  method = 'number', col = topo.colors(100), title = 'CCA1')
+corrplot( cor(V2, pc_matrix),  method = 'number', col = topo.colors(100), title = 'CCA2')
+
+
+```
+
+
+
+Viendo los _loadings_.
+
+Las primeras relaciones canónicas nos muestran lo siguiente:
+```{r cca1loadingsss}
+z1 <- U2[,1]
+z2 <- U2[,2]
+w1 <- V2[,1]
+w2 <- V2[,2]
+
+
+
+
+data1 <- data.frame(z1, w1)
+#scores
+ggplot(data = data1, mapping = aes(x = z1, y = w1)) + geom_point() + geom_smooth(method = 'lm')
+
+
+#relationship with previous campaign
+plot(x = z1, y = w1, col = df1[,'poutcome'] + 1)
+
+```
+```{r cca1loadings2}
+data2 <- data.frame(z2, w2)
+#scores
+ggplot(data = data2, mapping = aes(x = z2, y = w2)) + geom_point() + geom_smooth(method = 'lm')
+
+#scores with previous outcome
+plot(x = z2, y = w2, col = df1[,'poutcome'] + 1)
+
+
+
+```
+
+### CCA Banco vs Campaña pasada
+
+```{r}
+# set of variables
+bank_set <- c('default','balance','housing','loan')
+past_campgn_set <- c('contact','days','duration','poutcome')
+
+#select variables
+df2 <- df_main[,cbind(bank_set, past_campgn_set)]
+
+#dummies for bank info
+df2[,'default'] <- ifelse( df2[,'default'] == 'yes', 1, 0)
+df2[,'housing'] <- ifelse( df2[,'housing'] == 'yes', 1, 0)
+df2[,'loan'] <- ifelse( df2[,'loan'] == 'yes', 1, 0)
+
+#cols to numeric
+df2[,'contact'] <- as.numeric(as.character(df2[,'contact']))
+
+
+
+
+```
+
+
+
+
+```{r}
+R2 <- cor(df2)
+corrplot(R2, method = 'color', type = 'upper')
+corrplot(R2, method = 'number')
+```
+
+Vemos también que en este caso las vvariables tienen poca relaición entre ellas
+
+
+```{r}
+# set sets
+bank_lis <- c("default",  "balance",  "housing",  "loan")
+bank_matrix <- df2[,bank_lis]
+
+pc_lis <- c('contact','days','duration','poutcome')
+pc_matrix <- df2[,pc_lis]
+
+#CCA analisis
+cca2 <- stats::cancor(x = bank_matrix, y = pc_matrix, xcenter = FALSE, ycenter = FALSE) 
+
+cca2
+```
+
+
+Viendo los _loadings_.
+
+Las primeras relaciones canónicas nos muestran lo siguiente:
+```{r cca1loadings}
+z1 <- as.matrix(bank_matrix) %*% cca2$xcoef[,1] 
+w1 <- as.matrix(pc_matrix) %*% cca2$ycoef[,1] 
+data1 <- data.frame(z1, w1)
+
+#plot
+
+#scores
+ggplot(data = data1, mapping = aes(x = z1, y = w1)) + geom_point() + geom_smooth(method = 'lm')
+
+
+#relationship with previous campaign
+plot(x = z1, y = w1, col = df2[,'poutcome'] + 1)
+
+```
+
+Las primeras relaciones canónicas nos muestran lo siguiente:
+```{r cca11loadings}
+z2 <- as.matrix(bank_matrix) %*% cca2$xcoef[,2] 
+w2 <- as.matrix(pc_matrix) %*% cca2$ycoef[,2] 
+data1 <- data.frame(z2, w2)
+
+#plot
+
+#scores
+ggplot(data = data1, mapping = aes(x = z2, y = w2)) + geom_point() + geom_smooth(method = 'lm')
+
+
+#relationship with previous campaign
+plot(x = z2, y = w2, col = df2[,'poutcome'] + 1)
+
+```
+
+
+## Ejercicio 6
+Objetivo: determinar si las variables fisiológicas se relacionan de alguna forma con las
+variables de ejercicio.
+a.Analizar la matriz de correlaciones relevantes entre las variables de los dos grupos.
+b.Probar la hipótesis H0 : Σxy = 0
+
+```{r}
+data.6<-read.table("FitnessClubData.dat", header = T)
+```
+
+Analizar la matriz de correlaciones relevantes entre las variables de los dos grupos
+
+```{r}
+(R.6<-cor(data.6))
+```
+
+```{r}
+corrplot(R.6)
+```
+
+Parece que hay una correlación alta entre sentadillas y la medición de la cintura. También parecen correlacionadas las sentadillas con el peso y las lagartijas con la medida de la cintura.
+
+```{r}
+cor(data.6[,1:3], data.6[,4:6])
+```
+
+Las correlaciones entre las variables fisiológicas y de ejercicio son moderadas, la más grande es de -0.65 entre cintura y sentadillas. Hay correlaciones más grandes dentro del conjunto: 0.8702 entre peso y cintura, 0.6957 entre mentones y abdominales, y 0.6692 entre abdominales y saltos.
+
+Probar $H0: cov(x,y)=0$
+
+```{r}
+(cca <- stats::cancor(x = data.6[,1:3], y = data.6[,4:6]))
+```
+
+Las correlaciones entre las dos funciones canónicas, son 0.8, 0.2 y 0.73 respectivamente. Entonces, la primera correlación canónica de 0.7956 es mayor que cualquiera de las correlaciones entre conjuntos. 
+
+```{r}
+(cc <- cancor(x = data.6[,1:3], y = data.6[,4:6]))
+```
+
+Ahora, para probar la hipótesis necesitamos hacer una prueba. Tenemos con Wilks lambda con p-value de 0.06353>0.05, entonces no rechazamos la hipótesis nula. Por lo que no rechazamos la hipótesis nula de que no hay relación entre los dos conjuntos de variables y concluimos que los dos conjuntos de variables son independientes.
+
+## Ejercicio 7
+
+Datos financieros anuales de firms que estan en bancarrota, dos años de declararse en bancarrota. Las variables son $X_1 =(\text{cashflow})/ (\text{total debt})$, $X_2 =(\text{net income})/ (\text{total assets})$, $X_3 =(\text{current assets})/ (\text{current liabilitites})$ y $X_4 =(\text{current assets})/ (\text{net sales})$
+
+
+```{r, echo = FALSE}
+df_7 <- read.table('T11-4.DAT')
+names(df_7) <- c("X1","X2","X3","X4","Population")
+V <- as.logical(df_7$Population)
+V <- factor(V,labels = c('Grupo 1','Grupo 2'))
+df_7$Grupo = V
+head(df_7)
+```
+
+### a) Usando diferentes simbolos para cada grupo, plotea los pares de datos $(x_1,x_2)$ $(x_1,x_3)$ y $(x_1,x_4)$ ¿Parece que los datos son aproximados a una normal bivariada para cualquiera de estos pares?
+```{r}
+plt.7.1 <- ggplot(df_7,aes(x = df_7$X1, y = df_7$X2, group = df_7$Grupo)) + geom_point(alpha = 0.75, size = 3.5, aes(shape = Grupo, color = Grupo)) + ylab("X2")+xlab("X1")+ ggtitle("Graph 7.1") + theme_classic()
+plt.7.2 <- ggplot(df_7,aes(x = df_7$X1, y = df_7$X3, group = df_7$Grupo)) + geom_point(alpha = 0.75, size = 3.5, aes(shape = Grupo, color = Grupo)) + ylab("X3")+xlab("X1")+ ggtitle("Graph 7.2") + theme_classic()
+plt.7.3 <- ggplot(df_7,aes(x = df_7$X1, y = df_7$X4, group = df_7$Grupo)) + geom_point(alpha = 0.75, size = 3.5, aes(shape = Grupo, color = Grupo)) + ylab("X4")+xlab("X1")+ ggtitle("Graph 7.3") + theme_classic()
+```
+```{r,echo=FALSE}
+plt.7.1
+```
+```{r,echo=FALSE}
+plt.7.2
+```
+```{r,echo=FALSE}
+plt.7.3
+```
+Viendo las graficas, podemos pensar que los datos vienen de una normal bivariada, pues podriamos englobarlas en un elipse, en otras con menor.
+
+
+### b) Usando las $n_1 = 21$ pares de observaciones $(x_1,x_2)$ de firmas quebradas y las $n_2 = 25$ pares de observaciones $(x_1,x_2)$ no en quiebra, cacule la media muestral para $x_1$ y $x_2$ y la matriz de covarianzas S1 y S2.
+Obtenemos las siguientes medias.
+```{r, echo = FALSE}
+means1 <- tapply(df_7$X1,df_7$Grupo,mean)
+means2<- tapply(df_7$X2,df_7$Grupo,mean)
+print("Para X1")
+(x1.bar <- c(means1[1],means2[1]))
+print("Para X2")
+(x2.bar <- c(means1[2],means2[2]))
+```
+
+```{r,echo = FALSE}
+print("S1")
+(S1 <- cov(df_7[1:21,1:2]))
+print("S2")
+(S2 <- cov(df_7[22:46,1:2]))
+
+```
+
+
+### c) Usando los resultadoes en (b) y asumiendo que ambas muestras aleatorias provienen de una normal bivariada, construya la recgla de clasificación(11-29) con $p_1 = p_2$ y con $c(1|2) = c(2|1)$
+Bajo estas hipotesis la regla de decision quedaria dada de la siguiente forma
+
+$$-\frac{1}{2}x_0^T(S_1^{-1} - S_2^{-1})x_0 + (\bar{x}_1S_1^{-1} - \bar{x}_2S_2^{-1})x_0 - k \geq 0$$
+
+```{r,echo = FALSE, include = FALSE}
+lda7 <-function(xbar_1, xbar_2,S_1,S_2)
+  {
+  print(aux1<- solve(S_1)-solve(S_2))
+  print(aux2 <- t(xbar_1)%*%solve(S_1)-t(xbar_2)%*%solve(S_2))
+  print(k <- 0.5*log(det(S_1)/det(S_2))+ 0.5*(t(xbar_1)%*%solve(S_1)%*%xbar_1 - t(xbar_2)%*%solve(S_2)%*%xbar_2 ))
+}
+lda7(x1.bar,x2.bar,S1,S2)
+```
+
+de donde obtenemos 
+$$-\frac{1}{2}x_0^T\left(\begin{array}{cc} 
+120.88 & -29.74\\
+-29.74 & -813.36
+\end{array}\right)x_0 + (5.31 , -29.64)x_0 - .16 \geq 0$$
+
+En caso de que el resultado sea positivo, el dato observado pertenece a $\pi_1$ de lo contrario a $\pi_2$
+
+### d) Evalue el desempeño de la regla de clasificación desarrollada en (c) al calcular el error aparente (APER) y el error estimado actual (AER)
+
+El error aparente esta dado por 
+$$APER = \frac{n_{1M} + n_{2M}}{n_1 + n_2}$$
+```{r, echo  = FALSE}
+clas <- function(x0,xbar_1, xbar_2,S_1,S_2,c=0) 
+  {
+    aux1<- solve(S_1)-solve(S_2)
+    aux2 <- t(xbar_1)%*%solve(S_1)-t(xbar_2)%*%solve(S_2)
+    k <- 0.5*log(det(S_1)/det(S_2))+ 0.5*(t(xbar_1)%*%solve(S_1)%*%xbar_1 - t(xbar_2)%*%solve(S_2)%*%xbar_2 )
+    p = -1
+    r <- -0.5*t(x0)%*%aux1%*%x0+aux2%*%x0-k-c
+    if(r >= 0) p = 0
+    else p <- 1
+    return(p)
+}
+aper <- function(x0,dim,xbar_1, xbar_2,S_1,S_2,c)
+  {
+  vec <- c()
+  contador = 0
+  for(i in 1:dim)
+    {
+    vec[i] <- clas(t(x0[i,]),xbar_1, xbar_2,S_1,S_2,c)
+    if(vec[i] != df_7[i,"Population"])
+    contador = contador +1
+    }
+  APER <-  contador/dim
+  return(round(APER,3))
+}
+print("APER")
+aper(df_7[,1:2],46,x1.bar,x2.bar,S1,S2,0)
+```
+
+Para el calculo de $E(AER)$.
+```{r,echo = FALSE} 
+aer <- function(x0,dim,pr)
+  {
+  x1x2 = as.data.frame(x0)
+  gb <- as.factor(df_7$Population)
+  prueba <- qda(x1x2,gb,prior = pr, CV= T)
+  AER <- (dim-sum(diag(table(gb,prueba$class))))/dim
+  print("AER")
+  round(AER,3)
+}
+aer(df_7[,1:2],46,c(0.5,0.5))
+```
+
+### e) Repita parte c y d asuientod $p_1= 0.05$ y $p_2= 0.95$ y con $c(1|2) = c(2|1)$. ¿Es razonable esta eleccion de prioridades? Explique
+
+No tiene nada de sentido hacer esta asignacion de probabilidades apriori pues los datos solo difieren de 5 observaciones de diferencia en terminos poblacionales con respecto a su grupo de clasificación.
+En este caso cambiara nuestra regla de clasificacion por la siguiente.
+
+$$-\frac{1}{2}x_0^T(S_1^{-1} - S_2^{-1})x_0 + (\bar{x}_1S_1^{-1} - \bar{x}_2S_2^{-1})x_0 - k \geq ln(\frac{p_2}{p_1})$$
+donde $ln(\frac{p_2}{p_1}) = ln(19)$
+Nuestro clasificador es el siguiente.
+
+$$-\frac{1}{2}x_0^T\left(\begin{array}{cc} 
+120.88 & -29.74\\
+-29.74 & -813.36
+\end{array}\right)x_0 + (5.31 , -29.64)x_0 - .16 \geq ln(19)$$
+
+Obtenemos su APER y su AER
+```{r,echo=FALSE}
+print("APER")
+aper(df_7[,1:2],46,x1.bar,x2.bar,S1,S2,log(19))
+```
+```{r,echo=FALSE}
+aer(df_7[,1:2],46,c(0.05,0.95))
+```
+
+### f) Usando los resultados en (b), forme la pooled covariance matriz $S_pooled$ y construya el discriminante lineal de Fisher. Use essta funcion para clasificar la muestra de observaciones y evalue el APER. ¿El discriminante lineal de fisher un clasificador sensato en este caso? Explique
+
+Obtenemos la matriz.
+```{r,echo = FALSE}
+print("Spool Matrix")
+(round(Spool.7<-(21-1)/((21-1)+(26-1))*S1 + (26-1)/((21-1)+(26-1))*S2,3))
+```
+El discriminante queda dado por
+$$(\bar{x}_1- \bar{x}_2)^TS_{pooled}^{-1}x_0 -\frac{1}{2}(\bar{x}_1- \bar{x}_2)^TS_{pooled}^{-1}(\bar{x}_1+ \bar{x}_2)\geq ln(\frac{p_2}{p_1})$$
+```{r,echo = FALSE, include =TRUE}
+
+lda7.2 <-function(xbar_1, xbar_2,S_pool)
+  {
+  SS <- solve(S_pool)
+  aux7 <- t(xbar_1-xbar_2)%*%SS
+  m7 <- 0.5*t(xbar_1-xbar_2)%*%SS%*%(xbar_1+xbar_2)
+  v7 = c(aux7[1],aux7[2],m7)
+  return(v7)
+}
+v7 <- lda7.2(x1.bar,x2.bar,Spool.7)
+v7
+```
+Obtenemos entonces el siguiente disciminante
+$$(-4.63,-5.29)x_0 + 0.31 \geq 0$$
+Calculamos su APER y AER
+
+```{r,echo = FALSE}
+clas2<- function(x0,f,m)
+  {
+  p = -1
+  r <- t(x0)%*%f-m
+  if(r >= 0) p = 0
+  else p <- 1
+  return(p)
+}
+aper2 <- function(x0,f,m,dim)
+  {
+  vec <- c()
+  contador = 0
+  for(i in 1:dim){
+  vec[i] <- clas2(t(x0[i,]),f,m)
+  if(vec[i] != df_7[i,"Population"])
+  contador = contador +1
+  }
+  APER <-  contador/dim
+  return(round(APER,3))
+}
+print("APER")
+aper2(df_7[,1:2],v7[1:2],v7[3],46)
+```
+El APER nos dio igual que cuando asumiamos diferentes Varianzas. Por lo que podemos ver que crear una sola matriz de covarianza ponderada es una buena opción.
+
+
+
+### g)Repita de la b)-e) usando los pares de variabeles  $(X_1,X_3)$ y $(X_1,X_4)$ ¿Algunas variables parecen ser clasificadas mejor que otras? Explique
+
+Para $(X_1,X_3)$ obtenemos su APER y su AER, , con $p_1 = p_2$
+
+```{r,echo = FALSE}
+means1.2 <- tapply(df_7$X1,df_7$Grupo,mean)
+means2.2<- tapply(df_7$X3,df_7$Grupo,mean)
+x1.bar <- c(means1.2[1],means2.2[1])
+x3.bar <- c(means1.2[2],means2.2[2])
+S1 <- cov(df_7[1:21,c("X1","X3")])
+S3 <- cov(df_7[22:46,c("X1","X3")])
+
+print("APER")
+(aper(df_7[,c("X1","X3")],46,x1.bar,x3.bar,S1,S3,0))
+aer(df_7[,c("X1","X3")],46,c(0.5,0.5))
+```
+Para $(X_1,X_3)$ obtenemos su APER y su AER, , con $p_1 =.05$ y  $p_2 = .95$
+
+```{r,echo = FALSE}
+print("APER")
+(aper(df_7[,c("X1","X3")],46,x1.bar,x3.bar,S1,S3,log(19)))
+aer(df_7[,c("X1","X3")],46,c(0.05,0.95))
+```
+
+Para $(X_1,X_4)$ obtenemos su APER y su AER, con $p_1 = p_2$
+
+```{r,echo = FALSE}
+means1.3 <- tapply(df_7$X1,df_7$Grupo,mean)
+means2.3<- tapply(df_7$X4,df_7$Grupo,mean)
+x1.bar <- c(means1.3[1],means2.3[1])
+x4.bar <- c(means1.3[2],means2.3[2])
+S1 <- cov(df_7[1:21,c("X1","X4")])
+S4 <- cov(df_7[22:46,c("X1","X4")])
+
+print("APER")
+(aper(df_7[,c("X1","X4")],46,x1.bar,x4.bar,S1,S4,0))
+aer(df_7[,c("X1","X4")],46,c(0.5,0.5))
+```
+Para $(X_1,X_4$ obtenemos su APER y su AER, , con $p_1 =.05$ y  $p_2 = .95$
+
+```{r,echo = FALSE}
+print("APER")
+(aper(df_7[,c("X1","X4")],46,x1.bar,x4.bar,S1,S3,log(19)))
+aer(df_7[,c("X1","X4")],46,c(0.05,0.95))
+```
+Podemos ver que la variable para la que mejor predice el modelo es para $(X_1,X_3)$ son las mehores clasificadas mientras que $(X_1,X_2)$serian las peres clasificadas. 
+
+### h) Repita de la b)-e) usando observaciones en las cuatro variables $(X_1,X_2,X_3,X_4)$
+
+Con $p_1 = p_2$ obtenemos el APER y el AER.
+```{r,echo = FALSE}
+x17.bar <- colMeans(df_7[1:21,1:4])
+x27.bar <- colMeans(df_7[22:46,1:4])
+S17 <- cov(df_7[1:21,1:4])
+S27 <- cov(df_7[22:46,1:4])
+
+print("APER")
+(aper(df_7[,1:4],46,x17.bar,x27.bar,S17,S27,0))
+aer(df_7[,1:4],46,c(0.5,0.5))
+```
+Ahora con $p_1 =.05$ y  $p_2 = .95$
+
+```{r,echo = FALSE}
+print("APER")
+(aper(df_7[,1:4],46,x17.bar,x27.bar,S17,S27,log(19)))
+aer(df_7[,1:4],46,c(0.05,0.95))
+```
+Parece presentar mejores resultados, y tiene sentido pues damos mas información al modelo.
+
+## Ejercicio 8: GPA & GMAT
+
+### A) Calcular las medias muestrales y la varianza agrupada
+
+```{r}
+#pooled variance
+
+#functions
+ni_s <- function(x, population){
+  
+  pis <- unique(x[,population])
+  ni <- c()
+  for(pi in pis) 
+    ni <- c(ni,length(which(x[,population] == pi)))
+  return(ni)
+}
+
+#variance
+Si_s <- function(x, population){
+  Si <- list()
+  pis <- unique(x[,population])
+  
+
+  for(pi in pis) {
+    Si[[pi]] <- cov(x[x[,population] == pi,-population])
+
+  }
+  return(Si)
+  
+}
+
+Spool <-  function(df, population = 3){
+  #number of populations
+  m <- length(unique(df[,population]))
+
+  #size ni
+  ni_vec <- ni_s(df, population)
+
+  #individual variance
+  Si_list <- Si_s(df, population)
+  
+  #pool variance
+  #upper part of the fraction
+  Spool <- matrix(0,nrow = 2,ncol = 2)
+
+  for(i in 1:m)
+    Spool <- Spool +  (ni_vec[i] - 1)[1]  *Si_list[[i]] 
+  
+  #lower part (constant)
+  Spool <- Spool / sum(ni_vec -1)
+  
+  return(Spool)
+}
+
+
+#read data
+df_r <- read.table('T11-6.DAT')
+n <- dim(df_r)[1]
+
+
+#means and pooled variance
+# mean
+means <- list()
+for(i in 1:3) means[[i]] <- colMeans(df_r[ df_r[,3] == i ,c(1,2)])
+means
+
+#pooled variance
+Sp <- Spool(df_r)
+
+#print means
+# knitr::kable(means, col.names = 'population_mean')
+
+cat("\n La varianza agrupada es: ")
+Sp
+
+
+
+```
+
+
+
+### $W$ y $B$, discriminante generalizado. 
+
+
+
+```{r}
+sample_bet_g <- function(means, mean_o){
+  B <- matrix(0, nrow = 2, ncol = 2)
+  for(xbar in means){
+    B <- B + (xbar - mean_o) %*% t(xbar - mean_o)
+  }
+  return(B)
+}
+
+
+
+#overal mean
+g <- length(unique(df_r[,3]))         #num of groups
+mean_o <- c(0,0)
+for(xbar in means)
+  mean_o <- mean_o + xbar             #overal mean of groups
+
+# B
+B <- sample_bet_g(means, mean_o)
+
+# W
+W <- (n - g)* Sp
+Winv <- solve(W)
+# eigen W-1B
+sWB <-eigen(Winv%*% B)
+
+B
+Winv
+sWB
+```
+
+Clasificaremos el siguiente alumno $x_{0}^{T} = [3.21 \quad 497]$.
+
+```{r}
+#new obs
+x.9 <- c(3.21, 497)
+
+# discriminants
+
+#first we make unite variance 
+v1 <- t(as.matrix(sWB$vectors[,1])) %*% Sp %*% as.matrix(sWB$vectors[,1])
+v2 <- t(as.matrix(sWB$vectors[,2])) %*% Sp %*% as.matrix(sWB$vectors[,2])
+
+a1 <- as.matrix(sWB$vectors[,1]) / v1[1]
+a2 <- as.matrix(sWB$vectors[,2]) / v2[1]
+
+# discriminants
+y <- t(cbind(a1,a2)) %*% x.9
+mu_y_p1 <- t(cbind(a1,a2)) %*% means[[1]]
+mu_y_p2 <- t(cbind(a1,a2)) %*% means[[2]]
+mu_y_p3 <- t(cbind(a1,a2)) %*% means[[3]]
+
+
+#clasiffy
+score_p1 <- t(y - mu_y_p1) %*% (y - mu_y_p1)
+score_p2 <- t(y - mu_y_p2) %*% (y - mu_y_p2)
+score_p3 <- t(y - mu_y_p3) %*% (y - mu_y_p3)
+
+score_p1
+score_p2
+score_p3
+
+```
+
+Vemos que el score más pequeño es el de la población $\prod_{3}$ , por lo que _clasificamos_ al estudiante nuevo $x_0$ como alguien en el _border line_ .
+
+La clasificación _sí_ coincide con la del libro.
+
+## Ejercicio 9
+
+```{r}
+data("hemophilia")
+plot(hemophilia$AHFactivity)
+plot(hemophilia$AHFantigen)
+```
+
+a. Investiga si son datos normales bivariados
+
+```{r}
+ad.test(hemophilia$AHFactivity)
+ad.test(hemophilia$AHFantigen)
+```
+Con una significancia alta, tenemos que se prueba la hipótesis de normalidad bivariada.
+
+b. Obtener la función lineal muestral distriminante 
+
+Recordar que el análisis discriminante lineal hace exactamente lo mismo que correlación
+canónica.
+
+```{r}
+(mc.9 <- CovMcd(hemophilia[,1:2]))
+col <- ifelse(hemophilia$gr == "carrier", 2, 3) 
+plot(mc.9, which="tolEllipsePlot", class=TRUE, col=col)
+plot(AHFantigen~AHFactivity, data=hemophilia, col=as.numeric(as.factor(gr))+1)
+
+```
+
+La gráfica anterior indica que es apropiado hacer un análisis discriminante lineal. En este diagrama, los puntos verdes representan a las sanas, mientras que los portadores de hemofilia se representan con puntos de color rojo.
+
+```{r}
+datos.9 <- melt(hemophilia, value.name = "valor")
+aggregate(formula = valor ~ gr + variable, data = datos.9,  FUN = function(x){shapiro.test(x)$p.value})
+```
+
+Todos tienen p-value mayor a 0.05, entonces no se rechaza y decimos que son todos normales.
+
+%%Análisis discriminante lineal
+
+ 
+b. Función discriminante lineal de asumiendo probabilidades iguales
+
+```{r}
+modelo_lda.9 <- lda(formula = gr ~ AHFactivity + AHFantigen, data = hemophilia)
+modelo_lda.9
+```
+
+
+c. Usando la función anterior clasificar las nuevas observaciones
+
+```{r}
+nuevas_observaciones <- data.frame(AHFactivity = c(-.112,-.059,.064,-.043,-.05,-.094,-.123,-.011,-.21,-.126), AHFantigen = c(-.279,-.068,.012,-.052,-.098,-.113,-.143,-.037,-.09,-.019) )
+```
+
+
+```{r}
+predict(object = modelo_lda.9, newdata = nuevas_observaciones)
+```
+
+
+```{r}
+predicciones <- predict(object = modelo_lda.9, newdata = hemophilia[, c(1,2)], method = "predictive")
+table(hemophilia$gr, predicciones$class, dnn = c("Clase real", "Clase predicha"))
+```
+
+```{r}
+trainig_error <- mean(hemophilia$gr != predicciones$class) * 100
+paste("trainig_error=", trainig_error, "%")
+```
+
+
+
