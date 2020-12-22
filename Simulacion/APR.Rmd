@@ -1,0 +1,289 @@
+---
+title: "Aprendizaje por Refuerzo"
+author: "Pablo Barranco,Thomas Bladt, Alejandro De Anda"
+date: "14/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+source("prim_final.R")
+```
+
+# Código para encontrar la ruta más corta entre dos puntos         
+# Aplicado para encontrar la solución a un laberinto               
+# Basado en explicación y código en Python de Dr. Daniel Soper:    
+# https://www.youtube.com/watch?v=iKdlKYG78j4                      
+# 14 de diciembre del 2020                                         
+# Pablo Barranco, Thomas Bladt, Alejandro De Anda                  
+
+Primero generamos un laberinto con el algoritmo de PRIM y creamos el ambiente del "juego".
+
+Definimos función para crear matriz de recompensas y graficarla.
+```{r}
+creaRecompensas <- function(lab,rmax){
+  recompensas <- lab
+  recompensas[recompensas == 0] <- -100
+  recompensas[recompensas == 1] <- -1
+  recompensas[2,ncol(lab)] <- rmax
+  recompensas[nrow(lab)-1,1] <- -1
+  return(recompensas)
+}
+
+plotRecompensas <- function(rec){
+  rec[2,ncol(rec)] <- 100
+  plot(rec, col = c("black","white","red","green"), key = NULL,breaks = NULL,axis.col=NULL, axis.row=NULL,xlab = "", ylab="", main = paste0("Laberinto de ", nrow(rec), " x ",ncol(rec)))
+}
+```
+
+Generamos un laberinto de tamaño $m \times n$.
+```{r}
+# Tamaño del laberinto (m x n)
+m <-9
+n <- 9
+
+set.seed(2022)
+laberinto <- genera_laberinto(m,n,0)
+
+recompensas <- creaRecompensas(laberinto,10000)
+
+# Inicializamos matriz Q
+q_val <- array(0, dim = c(m,n,4))
+
+# Ploteo laberinto
+#png("lab_15.png",width = 1800, height = 1300,res=250)
+plotRecompensas(recompensas)
+#dev.off()
+```
+
+Definimos las funciones ocupadas
+
+```{r}
+es_terminal <- function(fila,columna){
+  ifelse(recompensas[fila,columna] == -1,FALSE,TRUE)}
+
+inicio_aleatorio <- function(){
+  fila <- sample(1:m,size = 1)
+  columna <- sample(1:n,size = 1)
+  while(es_terminal(fila,columna)){
+    fila <- sample(1:m,size = 1)
+    columna <- sample(1:n,size = 1)
+  }
+  return(c(fila,columna))
+}
+
+sig_accion <- function(fila,columna,epsilon){
+  if(runif(1) < epsilon )
+    return(which.max(q_val[fila,columna,]))
+  else
+    return(sample(1:4,size = 1))
+}
+
+sig_lugar <- function(fila,columna,accion){
+  if(accion == 1 && fila > 1){fila = fila - 1}
+  else
+    if(accion == 2 && columna < n){columna = columna + 1}
+    else
+      if(accion == 3 && fila < m){fila = fila + 1}
+      else
+        if(accion == 4 && columna > 1){columna = columna - 1}
+  return(c(fila,columna))
+}
+
+dist_mas_corta <- function(fila_inicio,columna_inicio){
+  if(es_terminal(fila_inicio,columna_inicio)){return("[,]")}
+  else
+    fila <- fila_inicio
+    columna <- columna_inicio
+    camino <- paste0("[",fila,",",columna,"]")
+    k <- 0
+    
+    solucion_df <- data.frame(x= fila_inicio,y = columna_inicio)
+
+    while(!(es_terminal(fila,columna)) && (k < 500)){
+      k <-  k+1
+      accion <- sig_accion(fila, columna,1)
+      aux <- sig_lugar(fila,columna,accion)
+      fila <- aux[1]
+      columna <- aux[2]
+      camino <- append(camino,paste0("[",fila,",",columna,"]"))
+      solucion_df[k+1,1] <- fila
+      solucion_df[k+1,2] <- columna
+    }
+    return(list(camino = camino,sol = solucion_df))
+}
+
+look <- function(vec,mat){
+  resp <- apply(mat, 1, function(x, want) isTRUE(all.equal(x, want)), vec)
+  if(TRUE %in% resp)
+    return(TRUE)
+  else
+    return(FALSE)
+}
+```
+
+El algoritmo de Monte Carlo:
+```{r}
+episodio <- function(epsilon,gamma = 0.9) # corre un episodio de iteracion pero con tasa de descuento
+{ 
+  bandera = TRUE
+  # Obtenemos S_0
+  inicio <- inicio_aleatorio()
+  fila <- inicio[1]
+  columna <- inicio[2]
+  
+  state_action_reward = c(NULL,NULL,NULL)
+  
+  while(!(es_terminal(fila,columna))){
+    accion <- sig_accion(fila,columna,epsilon)
+    fila_vieja <- fila
+    columna_vieja <- columna
+    lugar <- sig_lugar(fila,columna,accion)
+    fila <- lugar[1]
+    columna <- lugar[2]
+    recompensa <- recompensas[fila,columna]
+    state_action_reward <- rbind(state_action_reward,c(fila_vieja,columna_vieja,accion,recompensa))
+  }
+  
+  g = 0
+  G <- NULL
+  R <- apply(t(state_action_reward[,4]),1,rev)
+  for(r in R){
+    g = r + gamma*g
+    G <- append(G,g)
+  }
+  G <- apply(t(G),1,rev)
+  state_action_reward[,4] <- G
+  return(state_action_reward)
+}
+
+monte_carlo <- function(env,epsilon,gamma,N_episodes=1000)
+{
+  # Inicializamos Q,V,PI
+  dim <- dim(env)
+  m <- dim[1]
+  n <- dim[2]
+  q_val <- array(0, dim = c(m,n,4))
+  visit <- array(0, dim = c(m,n,4))
+  rewards <- array(0, dim = c(m,n,4))
+  
+  
+  for(i in 1:N_episodes){
+    
+    #cambiar epsilon
+    
+    eps = max(0,epsilon - i/N_episodes)
+    #generamos un episodio
+    episode <- episodio(eps,gamma) #aqui 
+    seen_state_action = matrix(nrow=1,ncol=3)
+    k <- dim(episode)[1]
+    
+    for(i in 1:k){
+      if(!look(episode[i,1:3],seen_state_action)){ #Si no esta en los estados vistos
+        # Estados
+        fila <- episode[i,1]
+        columna <- episode[i,2]
+        # Accion
+        accion <- episode[i,3]
+        #Recompensa
+        recompensa <- episode[i,4]
+        
+        #Actualizacion
+        visit[fila, columna, accion] <- visit[fila, columna, accion] + 1 
+        rewards[fila,columna,accion] <- rewards[fila,columna,accion] + recompensa 
+        q_val[fila,columna,accion] <- rewards[fila,columna,accion]/visit[fila, columna, accion]
+        seen_state_action <- rbind(seen_state_action,episode[i,1:3])
+      }
+    }
+  }
+  return(q_val)
+}
+
+```
+```{r}
+
+tiempos_x <- seq(from = 25000, to = 500000, by = 25000)
+tiempos_y <- rep(0,20)
+
+for(i in 1:20){
+  q_val <- array(0, dim = c(m,n,4))
+  tiempos_y[i] <- system.time(q_val <- entrena_qlearn(tiempos_x[i]))[3]
+}
+```
+
+El algoritmo de Q-Learning:
+```{r}
+entrena_qlearn <- function(num_entren,q = q_val){
+  
+  epsilon <- 0.9    
+  descuento <- 0.9     #gamma
+  tasa_aprendizaje <- 0.9   #alpha
+  
+  for(i in 1:num_entren){
+    inicio <- inicio_aleatorio()
+    fila <- inicio[1]
+    columna <- inicio[2]
+    
+    while(!(es_terminal(fila,columna))){
+      accion <- sig_accion(fila,columna,epsilon)
+      fila_vieja <- fila
+      columna_vieja <- columna
+      lugar <- sig_lugar(fila,columna,accion)
+      fila <- lugar[1]
+      columna <- lugar[2]
+      recompensa <- recompensas[fila,columna]
+      viejo_q_val <- q_val[fila_vieja,columna_vieja,accion]
+      dif <- recompensa + descuento*max(q_val[fila,columna,])-viejo_q_val
+      
+      nuevo_q_val = viejo_q_val + (tasa_aprendizaje*dif)
+      q_val[fila_vieja, columna_vieja, accion] = nuevo_q_val
+    }
+  }
+  
+  return(q_val)
+}
+```
+
+```{r}
+#entrena
+q_val <- array(0, dim = c(m,n,4))
+system.time(q_val <- entrena_qlearn(100000))
+
+#Resuelve para la ruta 
+(solucion <- dist_mas_corta(m-1,1))
+
+#coloreaa
+colorea <- function(rec,sol){
+  aux <- list()
+  for(i in 1:nrow(sol)){
+    aux[[i]] <- rec
+    rec[sol[i,1],sol[i,2]] <- 100
+  }
+  
+  saveGIF({
+    for (i in 1:nrow(sol)) plot( aux[[i]],col = c("black","white","green"),key = NULL,breaks = NULL,axis.col=NULL, axis.row=NULL,xlab = "", ylab="", main = "Solución del laberinto")
+  },interval = 0.25,movie.name = "solucion1.gif")
+}
+
+#guardas gif coloreado
+colorea(recompensas,solucion$sol)
+recompensas[2,49] <- 100
+```
+
+```{r}
+#gráfica de complejidad
+tiempos <- data.frame(x= tiempos_x, y = tiempos_y)
+
+ggsave("tiempo_q.png",width = 6, height = 4)
+ggplot(data = tiempos, aes(x= x, y = y))+
+  geom_line(color = "firebrick")+
+  geom_point(color = "firebrick")+
+  labs( x= "Iteraciones", y = "Tiempo (s)", title= "Tiempo de ejecución del método", subtitle = "Q-Learning")+
+  theme_bw()
+dev.off()
+```
+
+
+
+
